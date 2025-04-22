@@ -1,0 +1,12 @@
+Controlador\DeleteMaterial.class
+Controlador\LogoutServlet.class
+com\mycompany\laboratorio_c\resources\JakartaEE10Resource.class
+Modelo\Usuario.class
+Controlador\ConexionDB.class
+Controlador\RegisterServlet.class
+com\mycompany\laboratorio_c\JakartaRestConfiguration.class
+Controlador\LoginServlet.class
+Modelo\Material.class
+Util\PasswordUtil.class
+Controlador\SendForm.class
+Controlador\AuthFilter.class
