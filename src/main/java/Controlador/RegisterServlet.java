@@ -14,7 +14,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-@WebServlet(name = "RegisterServlet", urlPatterns = {"/register"})
+@WebServlet(name = "RegisterServlet", urlPatterns = {"/registerUser"})
 public class RegisterServlet extends HttpServlet {
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
@@ -45,7 +45,7 @@ public class RegisterServlet extends HttpServlet {
         }
 
         // Si no hay sesión, mostrar la página de registro
-        request.getRequestDispatcher("/register.jsp").forward(request, response);
+        request.getRequestDispatcher("/registerUser.jsp").forward(request, response);
     }
 
     @Override
@@ -66,14 +66,14 @@ public class RegisterServlet extends HttpServlet {
                 || rol == null || rol.trim().isEmpty()) {
 
             request.setAttribute("errorMessage", "Por favor, complete todos los campos");
-            request.getRequestDispatcher("/register.jsp").forward(request, response);
+            request.getRequestDispatcher("/registerUser.jsp").forward(request, response);
             return;
         }
 
         // Validar que las contraseñas coincidan
         if (!password.equals(confirmPassword)) {
             request.setAttribute("errorMessage", "Las contraseñas no coinciden");
-            request.getRequestDispatcher("/register.jsp").forward(request, response);
+            request.getRequestDispatcher("/registerUser.jsp").forward(request, response);
             return;
         }
 
@@ -82,7 +82,7 @@ public class RegisterServlet extends HttpServlet {
                 || !password.matches(".*[a-z].*") || !password.matches(".*[0-9].*")) {
 
             request.setAttribute("errorMessage", "La contraseña debe tener al menos 8 caracteres, incluir mayúsculas, minúsculas y números");
-            request.getRequestDispatcher("/register.jsp").forward(request, response);
+            request.getRequestDispatcher("/registerUser.jsp").forward(request, response);
             return;
         }
 
@@ -95,7 +95,7 @@ public class RegisterServlet extends HttpServlet {
 
             if (conn == null) {
                 request.setAttribute("errorMessage", "Error de conexión a la base de datos");
-                request.getRequestDispatcher("/register.jsp").forward(request, response);
+                request.getRequestDispatcher("/registerUser.jsp").forward(request, response);
                 return;
             }
 
@@ -107,7 +107,7 @@ public class RegisterServlet extends HttpServlet {
 
             if (rs.next() && rs.getInt(1) > 0) {
                 request.setAttribute("errorMessage", "El correo electrónico ya está registrado");
-                request.getRequestDispatcher("/register.jsp").forward(request, response);
+                request.getRequestDispatcher("/registerUser.jsp").forward(request, response);
                 return;
             }
 
@@ -139,12 +139,12 @@ public class RegisterServlet extends HttpServlet {
             } else {
                 // Error al registrar
                 request.setAttribute("errorMessage", "Error al registrar el usuario. Inténtelo de nuevo.");
-                request.getRequestDispatcher("/register.jsp").forward(request, response);
+                request.getRequestDispatcher("/registerUser.jsp").forward(request, response);
             }
 
         } catch (SQLException e) {
             request.setAttribute("errorMessage", "Error: " + e.getMessage());
-            request.getRequestDispatcher("/register.jsp").forward(request, response);
+            request.getRequestDispatcher("/registerUser.jsp").forward(request, response);
         } finally {
             try {
                 if (rs != null) {
