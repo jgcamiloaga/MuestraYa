@@ -59,7 +59,7 @@
                     </button>
 
                     <div class="register-link" style="text-align: center; margin-top: 20px; font-size: 14px;">
-                        ¿No tienes una cuenta? <a href="register" style="color: var(--primary-color); text-decoration: none; font-weight: 500;">Registrarse</a>
+                        ¿No tienes una cuenta? <a href="VISTA/registerUser.jsp" style="color: var(--primary-color); text-decoration: none; font-weight: 500;">Registrarse</a>
                     </div>
                 </form>
             </div>
