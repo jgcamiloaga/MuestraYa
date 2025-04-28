@@ -5,17 +5,9 @@
 --%>
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
-<%@page import="Modelo.Usuario"%>
 <%
-    // Verificar si el usuario está autenticado
-    HttpSession userSession = request.getSession(false);
-    if (userSession == null || userSession.getAttribute("usuario") == null) {
-        response.sendRedirect(request.getContextPath() + "/login");
-        return;
-    }
-
-    // Obtener el usuario de la sesión
-    Usuario usuarioActual = (Usuario) userSession.getAttribute("usuario");
+    // Redirigir a la nueva ubicación
+    response.sendRedirect(request.getContextPath() + "/VISTA/registerMaterial.jsp");
 %>
 <!DOCTYPE html>
 <html lang="es">
