@@ -65,7 +65,7 @@ public class SendForm extends HttpServlet {
             }
         } catch (NumberFormatException e) {
             request.setAttribute("errorMessage", "El precio debe ser un número válido");
-            request.getRequestDispatcher("index.jsp").forward(request, response);
+            request.getRequestDispatcher("/VISTA/registerMaterial.jsp").forward(request, response);
             return;
         }
 
@@ -99,7 +99,7 @@ public class SendForm extends HttpServlet {
 
             if (conn == null) {
                 request.setAttribute("errorMessage", "No se pudo establecer conexión con la base de datos");
-                request.getRequestDispatcher("index.jsp").forward(request, response);
+                request.getRequestDispatcher("/VISTA/registerMaterial.jsp").forward(request, response);
                 return;
             }
 
@@ -120,12 +120,12 @@ public class SendForm extends HttpServlet {
             if (filasAfectadas > 0) {
                 // Registro exitoso
                 request.setAttribute("successMessage", "Material registrado correctamente");
-                response.sendRedirect(request.getContextPath() + "/listado.jsp?success=true");
+                response.sendRedirect(request.getContextPath() + "/VISTA/listado.jsp?success=true");
 
             } else {
                 // Error al insertar
                 request.setAttribute("errorMessage", "Error al registrar el material");
-                request.getRequestDispatcher("index.jsp").forward(request, response);
+                request.getRequestDispatcher("/VISTA/registerMaterial.jsp").forward(request, response);
             }
 
         } catch (SQLException e) {
@@ -138,7 +138,7 @@ public class SendForm extends HttpServlet {
             }
 
             request.setAttribute("errorMessage", errorMsg);
-            request.getRequestDispatcher("index.jsp").forward(request, response);
+            request.getRequestDispatcher("/VISTA/registerMaterial.jsp").forward(request, response);
         } finally {
             // Cerrar recursos
             try {
@@ -157,6 +157,5 @@ public class SendForm extends HttpServlet {
     @Override
     public String getServletInfo() {
         return "Short description";
-    }// </editor-fold>
-
+    }
 }
