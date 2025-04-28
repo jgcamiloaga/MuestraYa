@@ -39,7 +39,7 @@ public class DeleteMaterial extends HttpServlet {
 
         if (idMaterial == null || idMaterial.trim().isEmpty()) {
             // Si no se proporciona un ID válido, redirigir con un mensaje de error
-            response.sendRedirect(request.getContextPath() + "/listado.jsp?error=true");
+            response.sendRedirect(request.getContextPath() + "/VISTA/listado.jsp?error=true");
             return;
         }
 
@@ -52,7 +52,7 @@ public class DeleteMaterial extends HttpServlet {
 
             if (conn == null) {
                 // Si no se puede establecer la conexión, redirigir con un mensaje de error
-                response.sendRedirect(request.getContextPath() + "/listado.jsp?error=true");
+                response.sendRedirect(request.getContextPath() + "/VISTA/listado.jsp?error=true");
                 return;
             }
 
@@ -68,16 +68,16 @@ public class DeleteMaterial extends HttpServlet {
 
             if (filasAfectadas > 0) {
                 // Eliminación exitosa
-                response.sendRedirect(request.getContextPath() + "/listado.jsp?delete=true");
+                response.sendRedirect(request.getContextPath() + "/VISTA/listado.jsp?delete=true");
             } else {
                 // No se encontró el material o no se pudo eliminar
-                response.sendRedirect(request.getContextPath() + "/listado.jsp?error=true");
+                response.sendRedirect(request.getContextPath() + "/VISTA/listado.jsp?error=true");
             }
 
         } catch (SQLException e) {
             // Error de SQL
             System.err.println("Error al eliminar material: " + e.getMessage());
-            response.sendRedirect(request.getContextPath() + "/listado.jsp?error=true");
+            response.sendRedirect(request.getContextPath() + "/VISTA/listado.jsp?error=true");
         } finally {
             // Cerrar recursos
             try {
