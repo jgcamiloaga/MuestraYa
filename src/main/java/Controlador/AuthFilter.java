@@ -12,7 +12,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
-@WebFilter(filterName = "AuthFilter", urlPatterns = {"/index.jsp", "/listado.jsp", "/SendForm", "/DeleteMaterial"})
+@WebFilter(filterName = "AuthFilter", urlPatterns = {"/VISTA/registerMaterial.jsp", "/VISTA/listado.jsp", "/SendForm", "/DeleteMaterial"})
 public class AuthFilter implements Filter {
     
     @Override
@@ -34,7 +34,7 @@ public class AuthFilter implements Filter {
             chain.doFilter(request, response);
         } else {
             // El usuario no está autenticado, redirigir a la página de login
-            httpResponse.sendRedirect(httpRequest.getContextPath() + "/login");
+            httpResponse.sendRedirect(httpRequest.getContextPath() + "/VISTA/login.jsp");
         }
     }
     
