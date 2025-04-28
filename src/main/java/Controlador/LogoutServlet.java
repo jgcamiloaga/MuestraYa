@@ -46,7 +46,7 @@ public class LogoutServlet extends HttpServlet {
         response.setDateHeader("Expires", 0);
 
         // Redireccionar a la página de login
-        response.sendRedirect(request.getContextPath() + "/login");
+        response.sendRedirect(request.getContextPath() + "/VISTA/login.jsp");
     }
 
     @Override
