@@ -41,12 +41,12 @@ public class LoginServlet extends HttpServlet {
         // Si ya hay una sesión activa, redirigir al listado
         HttpSession session = request.getSession(false);
         if (session != null && session.getAttribute("usuario") != null) {
-            response.sendRedirect(request.getContextPath() + "/listado.jsp");
+            response.sendRedirect(request.getContextPath() + "/VISTA/listado.jsp");
             return;
         }
 
         // Si no hay sesión, mostrar la página de login
-        request.getRequestDispatcher("/login.jsp").forward(request, response);
+        request.getRequestDispatcher("/VISTA/login.jsp").forward(request, response);
     }
 
     @Override
@@ -58,7 +58,7 @@ public class LoginServlet extends HttpServlet {
         // Validar que los campos no estén vacíos
         if (email == null || email.trim().isEmpty() || password == null || password.trim().isEmpty()) {
             request.setAttribute("errorMessage", "Por favor, complete todos los campos");
-            request.getRequestDispatcher("/login.jsp").forward(request, response);
+            request.getRequestDispatcher("/VISTA/login.jsp").forward(request, response);
             return;
         }
 
@@ -71,7 +71,7 @@ public class LoginServlet extends HttpServlet {
 
             if (conn == null) {
                 request.setAttribute("errorMessage", "Error de conexión a la base de datos");
-                request.getRequestDispatcher("/login.jsp").forward(request, response);
+                request.getRequestDispatcher("/VISTA/login.jsp").forward(request, response);
                 return;
             }
 
@@ -101,22 +101,22 @@ public class LoginServlet extends HttpServlet {
                     session.setAttribute("isLoggedIn", true);
                     session.setMaxInactiveInterval(30 * 60); // 30 minutos
 
-                    // Redirigir al listado
-                    response.sendRedirect(request.getContextPath() + "/listado.jsp");
+                    // Redirigir a la nueva ubicación en vez de listado.jsp
+                    response.sendRedirect(request.getContextPath() + "/VISTA/registerMaterial.jsp");
                 } else {
                     // Contraseña incorrecta
                     request.setAttribute("errorMessage", "Email o contraseña incorrectos");
-                    request.getRequestDispatcher("/login.jsp").forward(request, response);
+                    request.getRequestDispatcher("/VISTA/login.jsp").forward(request, response);
                 }
             } else {
                 // Usuario no encontrado
                 request.setAttribute("errorMessage", "Email o contraseña incorrectos");
-                request.getRequestDispatcher("/login.jsp").forward(request, response);
+                request.getRequestDispatcher("/VISTA/login.jsp").forward(request, response);
             }
 
         } catch (SQLException e) {
             request.setAttribute("errorMessage", "Error: " + e.getMessage());
-            request.getRequestDispatcher("/login.jsp").forward(request, response);
+            request.getRequestDispatcher("/VISTA/login.jsp").forward(request, response);
         } finally {
             try {
                 if (rs != null) {
