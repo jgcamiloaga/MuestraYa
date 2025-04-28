@@ -36,7 +36,7 @@
                 </div>
                 <% }%>
 
-                <form action="registerUser" method="POST" class="form-container" id="registerForm">
+                <form action="${pageContext.request.contextPath}/registerUser" method="POST" class="form-container" id="registerForm">
                     <div class="form-group">
                         <label for="nombre">Nombre Completo</label>
                         <div class="input-container">
@@ -46,7 +46,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="email">Correo Electrónico</label>
+                        <label for="email">Email</label>
                         <div class="input-container">
                             <i class="fas fa-envelope icon"></i>
                             <input type="email" id="email" name="email" placeholder="Ingrese su correo electrónico" required>
@@ -60,7 +60,7 @@
                             <input type="password" id="password" name="password" placeholder="Ingrese su contraseña" required>
                             <i class="fas fa-eye toggle-password" id="togglePassword"></i>
                         </div>
-                        <div class="password-strength" id="passwordStrength">
+                        <div class="password-strength">
                             <div class="strength-meter">
                                 <div class="strength-meter-fill" id="strengthMeter"></div>
                             </div>
@@ -96,7 +96,7 @@
                     </button>
 
                     <div class="login-link">
-                        ¿Ya tienes una cuenta? <a href="../login.jsp">Iniciar Sesión</a>
+                        ¿Ya tienes una cuenta? <a href="login.jsp">Iniciar Sesión</a>
                     </div>
                 </form>
             </div>
@@ -125,14 +125,14 @@
                 const password = this.value;
                 const strengthMeter = document.getElementById('strengthMeter');
                 const strengthText = document.getElementById('strengthText');
-
+                
                 // Criterios de fortaleza
                 const hasLowerCase = /[a-z]/.test(password);
                 const hasUpperCase = /[A-Z]/.test(password);
                 const hasNumber = /[0-9]/.test(password);
                 const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
                 const isLongEnough = password.length >= 8;
-
+                
                 // Calcular puntuación (0-100)
                 let score = 0;
                 if (hasLowerCase)
@@ -145,10 +145,10 @@
                     score += 20;
                 if (isLongEnough)
                     score += 20;
-
+                
                 // Actualizar medidor visual
                 strengthMeter.style.width = score + '%';
-
+                
                 // Actualizar texto
                 if (score === 0) {
                     strengthText.textContent = 'Seguridad de la contraseña';
@@ -176,7 +176,7 @@
                 const password = document.getElementById('password').value;
                 const confirmPassword = this.value;
                 const passwordMatch = document.getElementById('passwordMatch');
-
+                
                 if (confirmPassword === '') {
                     passwordMatch.textContent = '';
                     passwordMatch.className = 'password-match';
@@ -193,28 +193,27 @@
             document.getElementById('registerForm').addEventListener('submit', function (e) {
                 const password = document.getElementById('password').value;
                 const confirmPassword = document.getElementById('confirmPassword').value;
-
+                
                 if (password !== confirmPassword) {
                     e.preventDefault();
                     alert('Las contraseñas no coinciden. Por favor, inténtelo de nuevo.');
                     return false;
                 }
-
+                
                 // Validar fortaleza mínima de la contraseña
                 const hasLowerCase = /[a-z]/.test(password);
                 const hasUpperCase = /[A-Z]/.test(password);
                 const hasNumber = /[0-9]/.test(password);
                 const isLongEnough = password.length >= 8;
-
+                
                 if (!hasLowerCase || !hasUpperCase || !hasNumber || !isLongEnough) {
                     e.preventDefault();
                     alert('La contraseña debe tener al menos 8 caracteres, incluir mayúsculas, minúsculas y números.');
                     return false;
                 }
-
+                
                 return true;
             });
         </script>
     </body>
 </html>
-

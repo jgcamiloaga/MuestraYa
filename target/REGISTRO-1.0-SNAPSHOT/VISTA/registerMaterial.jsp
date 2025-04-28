@@ -1,13 +1,21 @@
 <%-- 
-    Document   : Index
+    Document   : registerMaterial
     Created on : 8 abr. 2025, 2:02:58 p. m.
     Author     : Johann
 --%>
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@page import="Modelo.Usuario"%>
 <%
-    // Redirigir a la nueva ubicación
-    response.sendRedirect(request.getContextPath() + "/VISTA/registerMaterial.jsp");
+    // Verificar si el usuario está autenticado
+    HttpSession userSession = request.getSession(false);
+    if (userSession == null || userSession.getAttribute("usuario") == null) {
+        response.sendRedirect(request.getContextPath() + "/login");
+        return;
+    }
+
+    // Obtener el usuario de la sesión
+    Usuario usuarioActual = (Usuario) userSession.getAttribute("usuario");
 %>
 <!DOCTYPE html>
 <html lang="es">
@@ -16,7 +24,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>MuestraYa - Registro Materiales</title>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-        <link rel="stylesheet" href="CSS/index-style.css"/>
+        <link rel="stylesheet" href="../CSS/registerMaterial-style.css"/>
     </head>
     <body>
         <div class="page-container">
@@ -25,9 +33,9 @@
                     <h1>Registro Materiales</h1>
                     <p class="subtitle">MuestraYa</p>
                     <div class="nav-links">
-                            <a href="listado.jsp" class="nav-link">
-                                <i class="fas fa-list"></i> Ver Listado
-                            </a>
+                        <a href="listado.jsp" class="nav-link">
+                            <i class="fas fa-list"></i> Ver Listado
+                        </a>
                     </div>
                 </div>
 
@@ -45,7 +53,7 @@
                 </div>
                 <% }%>
 
-                <form action="SendForm" method="POST" class="form-container" enctype="multipart/form-data">
+                <form action="../SendForm" method="POST" class="form-container" enctype="multipart/form-data">
                     <div class="form-group">
                         <label for="codigo">Código</label>
                         <div class="input-container">
