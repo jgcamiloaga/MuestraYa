@@ -1,0 +1,535 @@
+/* Estilos para las tarjetas */
+.cards-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 25px;
+    padding: 30px;
+    background-color: #f9fafc;
+}
+
+.material-card {
+    background-color: white;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    transform: translateY(0);
+    will-change: transform, box-shadow;
+}
+
+.material-card:hover {
+    transform: translateY(-15px) scale(1.02);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    z-index: 1;
+}
+
+.material-card:active {
+    transform: translateY(-5px) scale(0.98);
+    transition: all 0.2s ease;
+}
+
+.card-image {
+    height: 200px;
+    position: relative;
+    overflow: hidden;
+    background-color: #f5f7fa;
+}
+
+.card-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.7s cubic-bezier(0.33, 1, 0.68, 1);
+    display: block;
+    will-change: transform;
+}
+
+.material-card:hover .card-image img {
+    transform: scale(1.1) rotate(1deg);
+}
+
+.default-image {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(45deg, #f3f4f6, #e5e7eb);
+    transition: all 0.3s ease;
+}
+
+.default-image i {
+    font-size: 60px;
+    color: rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+}
+
+.material-card:hover .default-image {
+    background: linear-gradient(45deg, #e5e7eb, #f3f4f6);
+}
+
+.material-card:hover .default-image i {
+    transform: scale(1.1) rotate(5deg);
+    color: rgba(0, 0, 0, 0.3);
+}
+
+.card-category {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    z-index: 2;
+    transition: all 0.3s ease;
+    transform: translateY(0);
+}
+
+.material-card:hover .card-category {
+    transform: translateY(-5px);
+}
+
+.category-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    color: white;
+    background-color: #8d99ae;
+    white-space: nowrap;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.category-badge i {
+    font-size: 12px;
+    transition: transform 0.3s ease;
+}
+
+.material-card:hover .category-badge i {
+    transform: rotate(15deg);
+}
+
+/* Colores específicos para cada categoría */
+.category-badge.cat001 {
+    background-color: #3a86ff; /* Herramienta */
+}
+
+.category-badge.cat002 {
+    background-color: #ff006e; /* Ropa */
+}
+
+.category-badge.cat003 {
+    background-color: #fb5607; /* Cocina */
+}
+
+.category-badge.cat004 {
+    background-color: #8338ec; /* Electrónica */
+}
+
+.category-badge.cat005 {
+    background-color: #ffbe0b; /* Construcción */
+    color: #2b2d42; /* Texto oscuro para fondo claro */
+}
+
+.category-badge.cat006 {
+    background-color: #06d6a0; /* Oficina */
+}
+
+.card-content {
+    padding: 25px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.material-card:hover .card-content {
+    background-color: #fafbfd;
+}
+
+.card-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    color: #2b2d42;
+    position: relative;
+    padding-bottom: 15px;
+    transition: all 0.3s ease;
+}
+
+.card-title::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 40px;
+    height: 3px;
+    background: linear-gradient(to right, #3a86ff, #4895ef);
+    border-radius: 3px;
+    transition: width 0.4s ease;
+}
+
+.material-card:hover .card-title::after {
+    width: 70px;
+}
+
+.card-details {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: auto;
+    background-color: #f9fafc;
+    padding: 12px 15px;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.03);
+    transition: all 0.3s ease;
+}
+
+.material-card:hover .card-details {
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+    transform: translateY(-5px);
+}
+
+.card-id {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.detail-label {
+    font-size: 12px;
+    color: #8d99ae;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.detail-value {
+    font-size: 14px;
+    font-weight: 600;
+    color: #2b2d42;
+    transition: all 0.3s ease;
+}
+
+.material-card:hover .detail-value {
+    color: #3a86ff;
+}
+
+.card-price {
+    text-align: right;
+}
+
+.card-price .price {
+    font-size: 20px;
+    font-weight: 700;
+    color: #3a86ff;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.card-price .price::after {
+    content: "";
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background-color: #3a86ff;
+    transition: width 0.3s ease;
+}
+
+.material-card:hover .card-price .price::after {
+    width: 100%;
+}
+
+.card-actions {
+    padding: 15px 25px;
+    border-top: 1px solid #f0f0f0;
+    display: flex;
+    justify-content: flex-end;
+    transition: all 0.3s ease;
+}
+
+.material-card:hover .card-actions {
+    background-color: #fafbfd;
+}
+
+.delete-btn {
+    background-color: #f9fafc;
+    border: none;
+    color: #8d99ae;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    position: relative;
+    overflow: hidden;
+}
+
+.delete-btn::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 77, 109, 0);
+    border-radius: 50%;
+    transform: scale(0);
+    transition: transform 0.5s ease, background 0.3s ease;
+}
+
+.delete-btn:hover {
+    color: #ff4d6d;
+    transform: scale(1.15) rotate(5deg);
+    box-shadow: 0 5px 15px rgba(255, 77, 109, 0.2);
+}
+
+.delete-btn:hover::before {
+    transform: scale(1.5);
+    background: rgba(255, 77, 109, 0.1);
+}
+
+.delete-btn:active {
+    transform: scale(0.95);
+}
+
+.delete-btn i {
+    position: relative;
+    z-index: 1;
+    transition: transform 0.3s ease;
+}
+
+.delete-btn:hover i {
+    transform: rotate(-15deg);
+}
+
+/* Botones de cambio de vista mejorados */
+.view-toggle {
+    display: flex;
+    gap: 5px;
+    background-color: #edf2f7;
+    padding: 4px;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    margin-bottom: 20px;
+    transition: all 0.3s ease;
+}
+
+.view-toggle:hover {
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+}
+
+.view-btn {
+    background: transparent;
+    border: none;
+    color: #8d99ae;
+    border-radius: 8px;
+    padding: 10px 15px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    position: relative;
+    overflow: hidden;
+}
+
+.view-btn::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(58, 134, 255, 0.1), transparent);
+    transition: left 0.5s ease;
+}
+
+.view-btn:hover {
+    color: #3a86ff;
+    background-color: rgba(58, 134, 255, 0.05);
+}
+
+.view-btn:hover::before {
+    left: 100%;
+}
+
+.view-btn.active {
+    background-color: white;
+    color: #3a86ff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transform: translateY(-1px);
+}
+
+.view-btn i {
+    font-size: 16px;
+    transition: transform 0.3s ease;
+}
+
+.view-btn:hover i {
+    transform: scale(1.2);
+}
+
+/* Colores de borde para las tarjetas según categoría */
+.material-card.cat001 {
+    border-top: 4px solid #3a86ff;
+}
+
+.material-card.cat002 {
+    border-top: 4px solid #ff006e;
+}
+
+.material-card.cat003 {
+    border-top: 4px solid #fb5607;
+}
+
+.material-card.cat004 {
+    border-top: 4px solid #8338ec;
+}
+
+.material-card.cat005 {
+    border-top: 4px solid #ffbe0b;
+}
+
+.material-card.cat006 {
+    border-top: 4px solid #06d6a0;
+}
+
+/* Animación de aparición para las tarjetas */
+@keyframes cardAppear {
+    0% {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.cards-container {
+    perspective: 1000px;
+}
+
+.material-card {
+    animation: cardAppear 0.5s forwards;
+    animation-timing-function: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    opacity: 0;
+}
+
+/* Aplicar retraso a cada tarjeta para crear un efecto escalonado */
+.material-card:nth-child(1) {
+    animation-delay: 0.1s;
+}
+.material-card:nth-child(2) {
+    animation-delay: 0.15s;
+}
+.material-card:nth-child(3) {
+    animation-delay: 0.2s;
+}
+.material-card:nth-child(4) {
+    animation-delay: 0.25s;
+}
+.material-card:nth-child(5) {
+    animation-delay: 0.3s;
+}
+.material-card:nth-child(6) {
+    animation-delay: 0.35s;
+}
+.material-card:nth-child(7) {
+    animation-delay: 0.4s;
+}
+.material-card:nth-child(8) {
+    animation-delay: 0.45s;
+}
+.material-card:nth-child(9) {
+    animation-delay: 0.5s;
+}
+.material-card:nth-child(10) {
+    animation-delay: 0.55s;
+}
+.material-card:nth-child(n + 11) {
+    animation-delay: 0.6s;
+}
+
+/* Efecto de brillo al pasar el mouse */
+.material-card::after {
+    content: "";
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+        to bottom right,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0) 40%,
+        rgba(255, 255, 255, 0.4) 50%,
+        rgba(255, 255, 255, 0) 60%,
+        rgba(255, 255, 255, 0) 100%
+        );
+    transform: rotate(45deg);
+    pointer-events: none;
+    z-index: 10;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.material-card:hover::after {
+    animation: shine 1.5s ease-out;
+}
+
+@keyframes shine {
+    0% {
+        opacity: 0;
+        transform: rotate(45deg) translate(-100%, -100%);
+    }
+    20% {
+        opacity: 0.3;
+    }
+    100% {
+        opacity: 0;
+        transform: rotate(45deg) translate(100%, 100%);
+    }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .cards-container {
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        padding: 20px;
+    }
+
+    .card-content {
+        padding: 20px;
+    }
+
+    .card-actions {
+        padding: 12px 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .cards-container {
+        grid-template-columns: 1fr;
+        padding: 15px;
+    }
+
+    .material-card:hover {
+        transform: translateY(-10px) scale(1.01);
+    }
+}
