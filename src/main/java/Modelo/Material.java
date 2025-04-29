@@ -1,4 +1,3 @@
-// Modelo/Material.java
 package Modelo;
 
 import java.math.BigDecimal;
