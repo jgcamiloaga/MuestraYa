@@ -37,7 +37,7 @@
             //MENSAJE DE ELIMINAR UN PRODUCTO
             function confirmarEliminar(id, nombre) {
                 if (confirm("¿Estás seguro de que deseas eliminar el material '" + nombre + "'?")) {
-                    window.location.href = "DeleteMaterial?id=" + id;
+                    window.location.href = "<%= request.getContextPath()%>/DeleteMaterial?id=" + id;
                 }
             }
 
