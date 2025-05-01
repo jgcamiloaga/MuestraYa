@@ -3,11 +3,14 @@ Controlador\LogoutServlet.class
 com\mycompany\laboratorio_c\resources\JakartaEE10Resource.class
 Modelo\Usuario.class
 Controlador\ConexionDB.class
+Controlador\ProductsServlet.class
 Controlador\RegisterServlet.class
 Modelo\Categoria.class
 com\mycompany\laboratorio_c\JakartaRestConfiguration.class
 Controlador\LoginServlet.class
+Controlador\ResourceServlet.class
 Modelo\Material.class
 Util\PasswordUtil.class
 Controlador\SendForm.class
 Controlador\AuthFilter.class
+Controlador\ImageServlet.class

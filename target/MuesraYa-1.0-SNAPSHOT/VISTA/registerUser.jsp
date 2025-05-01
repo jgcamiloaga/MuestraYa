@@ -1,6 +1,6 @@
 <%-- 
     Document   : register
-    Created on : 21 abr. 2025, 8:05:55 p. m.
+    Created on : 21 abr. 2025, 8:05:55 p. m.
     Author     : Johann
 --%>
 
@@ -12,7 +12,8 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>MuestraYa - Registro de Usuario</title>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-        <link rel="stylesheet" href="../CSS/registerUser-style.css"/>
+        <!-- Usar el ResourceServlet para cargar el CSS -->
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/CSS/registerUser-style.css">
     </head>
     <body>
         <div class="page-container">
@@ -36,7 +37,7 @@
                 </div>
                 <% }%>
 
-                <form action="${pageContext.request.contextPath}/registerUser" method="POST" class="form-container" id="registerForm">
+                <form action="<%= request.getContextPath() %>/registerUser" method="POST" class="form-container" id="registerForm">
                     <div class="form-group">
                         <label for="nombre">Nombre Completo</label>
                         <div class="input-container">
@@ -96,7 +97,7 @@
                     </button>
 
                     <div class="login-link">
-                        ¿Ya tienes una cuenta? <a href="login.jsp">Iniciar Sesión</a>
+                        ¿Ya tienes una cuenta? <a href="<%= request.getContextPath() %>/VISTA/login.jsp">Iniciar Sesión</a>
                     </div>
                 </form>
             </div>
