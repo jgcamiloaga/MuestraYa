@@ -10,10 +10,17 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.Part;
 import java.io.File;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @WebServlet(name = "SendForm", urlPatterns = {"/SendForm"})
 @MultipartConfig(
@@ -22,39 +29,22 @@ import java.util.UUID;
         maxRequestSize = 1024 * 1024 * 15 // 15 MB
 )
 public class SendForm extends HttpServlet {
-
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        response.setContentType("text/html;charset=UTF-8");
-        try (PrintWriter out = response.getWriter()) {
-            /* TODO output your page here. You may use following sample code. */
-            out.println("<!DOCTYPE html>");
-            out.println("<html>");
-            out.println("<head>");
-            out.println("<title>Servlet SendForm</title>");
-            out.println("</head>");
-            out.println("<body>");
-            out.println("<h1>Servlet SendForm at " + request.getContextPath() + "</h1>");
-            out.println("</body>");
-            out.println("</html>");
-        }
-    }
-
-    @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        processRequest(request, response);
-    }
+    private static final Logger LOGGER = Logger.getLogger(SendForm.class.getName());
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
+        LOGGER.info("Iniciando procesamiento de formulario de registro de material");
+        
         // Obtener los parámetros del formulario
         String codigo = request.getParameter("codigo");
         String nombre = request.getParameter("nombre");
         String precioStr = request.getParameter("precio");
         String categoria = request.getParameter("categoria");
+
+        LOGGER.log(Level.INFO, "Datos recibidos: codigo={0}, nombre={1}, precio={2}, categoria={3}", 
+                new Object[]{codigo, nombre, precioStr, categoria});
 
         // Convertir precio a double
         double precio;
@@ -64,6 +54,7 @@ public class SendForm extends HttpServlet {
                 throw new NumberFormatException("El precio no puede ser negativo");
             }
         } catch (NumberFormatException e) {
+            LOGGER.log(Level.WARNING, "Error en formato de precio: {0}", e.getMessage());
             request.setAttribute("errorMessage", "El precio debe ser un número válido");
             request.getRequestDispatcher("/VISTA/registerMaterial.jsp").forward(request, response);
             return;
@@ -73,21 +64,57 @@ public class SendForm extends HttpServlet {
         String uploadPath = getServletContext().getRealPath("") + File.separator + "uploads";
         File uploadDir = new File(uploadPath);
         if (!uploadDir.exists()) {
-            uploadDir.mkdir();
+            LOGGER.info("Creando directorio de uploads");
+            uploadDir.mkdirs();
         }
+        
+        LOGGER.log(Level.INFO, "Directorio de uploads: {0}", uploadPath);
 
         // Procesar la imagen
         String fileName = "default.jpg"; // Valor por defecto
-        Part filePart = request.getPart("imagen");
+        
+        try {
+            LOGGER.info("Procesando archivo subido");
+            Part filePart = request.getPart("imagen");
+            
+            if (filePart != null) {
+                LOGGER.log(Level.INFO, "Parte de archivo obtenida: nombre={0}, tamaño={1}", 
+                        new Object[]{filePart.getSubmittedFileName(), filePart.getSize()});
+            } else {
+                LOGGER.warning("filePart es null");
+            }
 
-        if (filePart != null && filePart.getSize() > 0) {
-            // Generar un nombre único para la imagen
-            String originalFileName = filePart.getSubmittedFileName();
-            String fileExtension = originalFileName.substring(originalFileName.lastIndexOf("."));
-            fileName = UUID.randomUUID().toString() + fileExtension;
-
-            // Guardar la imagen
-            filePart.write(uploadPath + File.separator + fileName);
+            if (filePart != null && filePart.getSize() > 0 && filePart.getSubmittedFileName() != null && 
+                    !filePart.getSubmittedFileName().isEmpty()) {
+                // Generar un nombre único para la imagen
+                String originalFileName = filePart.getSubmittedFileName();
+                LOGGER.log(Level.INFO, "Nombre de archivo original: {0}", originalFileName);
+                
+                String fileExtension = "";
+                int lastDot = originalFileName.lastIndexOf(".");
+                if (lastDot > 0) {
+                    fileExtension = originalFileName.substring(lastDot);
+                }
+                fileName = UUID.randomUUID().toString() + fileExtension;
+                
+                // Ruta completa del archivo
+                String filePath = uploadPath + File.separator + fileName;
+                LOGGER.log(Level.INFO, "Guardando imagen en: {0}", filePath);
+                
+                // Guardar el archivo
+                try (InputStream input = filePart.getInputStream()) {
+                    Files.copy(input, Paths.get(filePath), StandardCopyOption.REPLACE_EXISTING);
+                    LOGGER.info("Imagen guardada exitosamente");
+                } catch (IOException e) {
+                    LOGGER.log(Level.SEVERE, "Error al guardar la imagen: {0}", e.getMessage());
+                    fileName = "default.jpg"; // Si hay error, usar imagen por defecto
+                }
+            } else {
+                LOGGER.info("No se recibió imagen o está vacía, usando imagen por defecto");
+            }
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error al procesar la parte del archivo: {0}", e.getMessage());
+            fileName = "default.jpg"; // Si hay excepción, usar imagen por defecto
         }
 
         Connection conn = null;
@@ -98,6 +125,7 @@ public class SendForm extends HttpServlet {
             conn = ConexionDB.getConnection();
 
             if (conn == null) {
+                LOGGER.severe("No se pudo establecer conexión con la base de datos");
                 request.setAttribute("errorMessage", "No se pudo establecer conexión con la base de datos");
                 request.getRequestDispatcher("/VISTA/registerMaterial.jsp").forward(request, response);
                 return;
@@ -114,22 +142,27 @@ public class SendForm extends HttpServlet {
             pstmt.setString(4, categoria);
             pstmt.setString(5, fileName);
 
+            LOGGER.log(Level.INFO, "Ejecutando consulta SQL con imagen={0}", fileName);
+            
             // Ejecutar la consulta
             int filasAfectadas = pstmt.executeUpdate();
 
             if (filasAfectadas > 0) {
                 // Registro exitoso
-                request.setAttribute("successMessage", "Material registrado correctamente");
+                LOGGER.info("Material registrado exitosamente en la base de datos");
                 response.sendRedirect(request.getContextPath() + "/VISTA/listado.jsp?success=true");
-
+                return;
             } else {
                 // Error al insertar
+                LOGGER.warning("No se insertaron filas en la base de datos");
                 request.setAttribute("errorMessage", "Error al registrar el material");
                 request.getRequestDispatcher("/VISTA/registerMaterial.jsp").forward(request, response);
+                return;
             }
 
         } catch (SQLException e) {
             // Error de SQL
+            LOGGER.log(Level.SEVERE, "Error SQL: {0}", e.getMessage());
             String errorMsg = "Error de base de datos: " + e.getMessage();
 
             // Verificar si es un error de duplicado (código ya existe)
@@ -149,13 +182,19 @@ public class SendForm extends HttpServlet {
                     conn.close();
                 }
             } catch (SQLException e) {
-                System.err.println("Error al cerrar recursos: " + e.getMessage());
+                LOGGER.log(Level.WARNING, "Error al cerrar recursos: {0}", e.getMessage());
             }
         }
     }
 
     @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        response.sendRedirect(request.getContextPath() + "/VISTA/registerMaterial.jsp");
+    }
+    
+    @Override
     public String getServletInfo() {
-        return "Short description";
+        return "Servlet para procesar el formulario de registro de materiales";
     }
 }
