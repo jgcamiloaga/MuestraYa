@@ -1,7 +1,6 @@
 package Modelo;
 
 public class Categoria {
-    
     private String idCategoria;
     private String nombre;
 
@@ -28,5 +27,4 @@ public class Categoria {
     public void setNombre(String nombre) {
         this.nombre = nombre;
     }
-    
 }
