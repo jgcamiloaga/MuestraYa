@@ -246,7 +246,7 @@
                 <div class="material-card <%= m.getIdCategoria().toLowerCase()%>">
                     <div class="card-image">
                         <% if (m.getImagen() != null && !m.getImagen().isEmpty() && !m.getImagen().equals("default.jpg")) {%>
-                        <img src="uploads/<%= m.getImagen()%>" alt="<%= m.getNombre()%>" onerror="this.onerror=null; this.src='images/default.jpg';">
+                        <img src="<%= request.getContextPath() %>/image/<%= m.getImagen()%>" alt="<%= m.getNombre()%>" onerror="this.onerror=null; this.src='<%= request.getContextPath() %>/image/default.jpg';">
                         <% } else {%>
                         <div class="default-image">
                             <i class="<%= getCategoryIcon(m.getIdCategoria())%>"></i>
