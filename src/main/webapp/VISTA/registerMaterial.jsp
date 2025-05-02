@@ -1,9 +1,3 @@
-<%-- 
-    Document   : registerMaterial
-    Created on : 8 abr. 2025, 2:02:58 p. m.
-    Author     : Johann
---%>
-
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@page import="Modelo.Usuario"%>
 <%
