@@ -11,21 +11,37 @@
   --card-color: #ffffff;
   --success-color: #4cc9f0;
   --error-color: #e53935;
+  --danger-color: #ff4d6d;
   --border-radius: 12px;
   --box-shadow: 0 10px 30px rgba(58, 134, 255, 0.1);
   --transition: all 0.3s ease;
+  
+  /* Colores de categorías */
+  --cat001-color: #3a86ff; /* Herramienta */
+  --cat002-color: #ff006e; /* Ropa */
+  --cat003-color: #fb5607; /* Cocina */
+  --cat004-color: #8338ec; /* Electrónica */
+  --cat005-color: #ffbe0b; /* Construcción */
+  --cat006-color: #06d6a0; /* Oficina */
 }
 
+/* Estilos base */
 * {
   font-family: "Poppins", sans-serif;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
 body {
   color: var(--text-color);
   background-color: var(--bg-color);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
-/* Navbar Styles */
+/* Estilos para el NavBar */
 .navbar {
   background: linear-gradient(
     135deg,
@@ -159,10 +175,7 @@ body {
   transform: translateX(5px);
 }
 
-.navbar-search {
-  position: relative;
-}
-
+/* Estilos de formularios */
 .form-control {
   border-radius: 30px;
   padding: 10px 20px;
@@ -196,6 +209,7 @@ body {
   transform: scale(1.05);
 }
 
+/* Estilos de botones */
 .btn {
   border-radius: 30px;
   padding: 10px 20px;
@@ -232,54 +246,29 @@ body {
   box-shadow: 0 4px 10px rgba(255, 255, 255, 0.2);
 }
 
-.cart-btn {
-  position: relative;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background-color: rgba(255, 255, 255, 0.1);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-right: 15px;
+.btn-outline-primary {
+  color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.btn-outline-primary:hover {
+  background-color: var(--primary-color);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(58, 134, 255, 0.2);
+}
+
+.btn-outline-secondary {
+  border-radius: 30px;
   transition: var(--transition);
 }
 
-.cart-btn:hover {
-  background-color: rgba(255, 255, 255, 0.2);
+.btn-outline-secondary:hover {
+  background-color: var(--text-color);
   transform: translateY(-2px);
 }
 
-.cart-count {
-  position: absolute;
-  top: -5px;
-  right: -5px;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background-color: var(--accent-color);
-  color: white;
-  font-size: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 600;
-}
-
-.user-avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background-color: var(--accent-color);
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 600;
-  margin-right: 10px;
-}
-
-/* Hero Section */
+/* Seccion Hero */
 .hero-section {
   background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)),
     url("https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80");
@@ -358,7 +347,7 @@ body {
   left: 100%;
 }
 
-/* Category Section */
+/* Seccion de Categorias */
 .category-section {
   margin-bottom: 40px;
   animation: fadeIn 1s ease-out;
@@ -390,19 +379,7 @@ body {
   font-weight: 500;
 }
 
-.btn-outline-primary {
-  color: var(--primary-color);
-  border-color: var(--primary-color);
-}
-
-.btn-outline-primary:hover {
-  background-color: var(--primary-color);
-  color: white;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 10px rgba(58, 134, 255, 0.2);
-}
-
-/* Product Cards */
+/* Cards para los Productos */
 .product-card {
   border-radius: var(--border-radius);
   border: none;
@@ -444,6 +421,7 @@ body {
   color: var(--primary-color) !important;
 }
 
+/* Badges para categorías */
 .category-badge {
   position: absolute;
   top: 15px;
@@ -457,36 +435,26 @@ body {
 
 /* Estilos para los colores de categorías */
 .badge.cat001 {
-  background-color: var(--primary-color) !important;
+  background-color: var(--cat001-color) !important;
 } /* Herramienta */
 .badge.cat002 {
-  background-color: var(--accent-color) !important;
+  background-color: var(--cat002-color) !important;
 } /* Ropa */
 .badge.cat003 {
-  background-color: #fb5607 !important;
+  background-color: var(--cat003-color) !important;
 } /* Cocina */
 .badge.cat004 {
-  background-color: #8338ec !important;
+  background-color: var(--cat004-color) !important;
 } /* Electrónica */
 .badge.cat005 {
-  background-color: #ffbe0b !important;
+  background-color: var(--cat005-color) !important;
   color: #212529 !important;
 } /* Construcción */
 .badge.cat006 {
-  background-color: #06d6a0 !important;
+  background-color: var(--cat006-color) !important;
 } /* Oficina */
 
-.btn-outline-secondary {
-  border-radius: 30px;
-  transition: var(--transition);
-}
-
-.btn-outline-secondary:hover {
-  background-color: var(--text-color);
-  transform: translateY(-2px);
-}
-
-/* Features Section */
+/* Seccion de Caracteristicas */
 .features-section {
   background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
   padding: 80px 0;
@@ -553,7 +521,7 @@ body {
   margin-bottom: 0;
 }
 
-/* Newsletter Section */
+/* Seccion de la Newsletter */
 .newsletter-section {
   padding: 80px 0;
   background-color: white;
@@ -645,6 +613,7 @@ body {
   background-color: #1a1c23;
   color: #fff;
   padding: 80px 0 30px;
+  margin-top: auto;
 }
 
 .footer h5 {
@@ -719,7 +688,7 @@ body {
   font-size: 0.9rem;
 }
 
-/* Animations */
+/* Animaciones */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -800,8 +769,22 @@ body {
     width: 100%;
     margin-top: 15px;
   }
+}
 
-  .cart-btn {
-    margin-right: 10px;
+@media (max-width: 480px) {
+  .hero-section {
+    padding: 80px 0;
+  }
+  
+  .hero-section h1 {
+    font-size: 1.8rem;
+  }
+  
+  .features-section {
+    padding: 50px 0;
+  }
+  
+  .newsletter-card {
+    padding: 20px;
   }
 }
