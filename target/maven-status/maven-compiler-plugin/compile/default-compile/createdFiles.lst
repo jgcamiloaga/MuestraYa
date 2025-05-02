@@ -8,6 +8,7 @@ Controlador\RegisterServlet.class
 Modelo\Categoria.class
 com\mycompany\laboratorio_c\JakartaRestConfiguration.class
 Controlador\LoginServlet.class
+Controlador\MaterialesServlet.class
 Controlador\ResourceServlet.class
 Modelo\Material.class
 Util\PasswordUtil.class
