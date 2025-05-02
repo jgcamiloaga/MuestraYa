@@ -24,15 +24,29 @@ public class ProductsServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
+        // Obtener el parámetro 'from' para determinar si venimos de listado.jsp
+        String fromPage = request.getParameter("from");
+        
         // Verificar si ya procesamos esta solicitud para evitar bucles (usando atributos de sesión)
         HttpSession session = request.getSession();
+        
+        // Si venimos de listado.jsp, limpiar cualquier caché previa para forzar recarga
+        if ("listado".equals(fromPage)) {
+            session.removeAttribute("lastProductRequest");
+            session.removeAttribute("cachedMaterials");
+            // Configurar cabeceras para evitar caché en el navegador
+            response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+            response.setHeader("Pragma", "no-cache");
+            response.setDateHeader("Expires", 0);
+        }
+        
         String requestURI = request.getRequestURI();
         String queryString = request.getQueryString();
         String fullPath = requestURI + (queryString != null ? "?" + queryString : "");
         
         // Verificar si hay atributos en la solicitud para evitar bucles de redirección
         Object prevRequestAttr = session.getAttribute("lastProductRequest");
-        if (prevRequestAttr != null && prevRequestAttr.equals(fullPath)) {
+        if (prevRequestAttr != null && prevRequestAttr.equals(fullPath) && !"listado".equals(fromPage)) {
             // Estamos en un bucle de redirección, establecer atributos de seguridad
             if (request.getAttribute("materiales") == null) {
                 request.setAttribute("materiales", new ArrayList<Material>());
