@@ -37,13 +37,18 @@ public class RegisterServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        // Si ya hay una sesión activa, redirigir al listado
+        // Si ya hay una sesión activa, redirigir al listado a través del servlet correspondiente
         HttpSession session = request.getSession(false);
         if (session != null && session.getAttribute("usuario") != null) {
-            response.sendRedirect(request.getContextPath() + "/VISTA/listado.jsp");
+            response.sendRedirect(request.getContextPath() + "/materiales");
             return;
         }
 
+        // Establecer cabeceras para evitar caché
+        response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+        response.setHeader("Pragma", "no-cache");
+        response.setDateHeader("Expires", 0);
+        
         // Si no hay sesión, mostrar la página de registro
         request.getRequestDispatcher("/VISTA/registerUser.jsp").forward(request, response);
     }
@@ -134,8 +139,8 @@ public class RegisterServlet extends HttpServlet {
 
             if (rowsAffected > 0) {
                 // Registro exitoso
-                request.getSession().setAttribute("successMessage", "Registro exitoso. Ahora puede iniciar sesión.");
-                response.sendRedirect(request.getContextPath() + "/VISTA/login.jsp");
+                request.setAttribute("successMessage", "Registro exitoso. Ahora puede iniciar sesión.");
+                request.getRequestDispatcher("/VISTA/login.jsp").forward(request, response);
             } else {
                 // Error al registrar
                 request.setAttribute("errorMessage", "Error al registrar el usuario. Inténtelo de nuevo.");
