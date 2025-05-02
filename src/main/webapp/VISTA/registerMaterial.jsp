@@ -24,7 +24,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>MuestraYa - Registro Materiales</title>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-        <link rel="stylesheet" href="../CSS/registerMaterial-style.css"/>
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/CSS/registerMaterial-style.css"/>
     </head>
     <body>
         <div class="page-container">
@@ -33,7 +33,7 @@
                     <h1>Registro Materiales</h1>
                     <p class="subtitle">MuestraYa</p>
                     <div class="nav-links">
-                        <a href="listado.jsp" class="nav-link">
+                        <a href="${pageContext.request.contextPath}/VISTA/listado.jsp" class="nav-link">
                             <i class="fas fa-list"></i> Ver Listado
                         </a>
                     </div>
@@ -58,7 +58,7 @@
                         <label for="codigo">Código</label>
                         <div class="input-container">
                             <i class="fas fa-barcode icon"></i>
-                            <input type="text" id="codigo" name="codigo" placeholder="Ingrese el código" required>
+                            <input type="text" id="codigo" name="codigo" placeholder="Ingrese el código" value="${prevCodigo}" required>
                         </div>
                     </div>
 
@@ -66,7 +66,7 @@
                         <label for="nombre">Nombre</label>
                         <div class="input-container">
                             <i class="fas fa-tag icon"></i>
-                            <input type="text" id="nombre" name="nombre" placeholder="Ingrese el nombre" required>
+                            <input type="text" id="nombre" name="nombre" placeholder="Ingrese el nombre" value="${prevNombre}" required>
                         </div>
                     </div>
 
@@ -74,7 +74,7 @@
                         <label for="precio">Precio</label>
                         <div class="input-container">
                             <i class="fas fa-dollar-sign icon"></i>
-                            <input type="number" id="precio" name="precio" step="0.01" min="0" placeholder="Ingrese el precio" required>
+                            <input type="number" id="precio" name="precio" step="0.01" min="0" placeholder="Ingrese el precio" value="${prevPrecio}" required>
                         </div>
                     </div>
 
@@ -83,13 +83,13 @@
                         <div class="input-container">
                             <i class="fas fa-folder icon"></i>
                             <select id="categoria" name="categoria" required>
-                                <option value="" disabled selected>Seleccione una categoría</option>
-                                <option value="CAT001">Herramienta</option>
-                                <option value="CAT002">Ropa</option>
-                                <option value="CAT003">Cocina</option>
-                                <option value="CAT004">Electrónica</option>
-                                <option value="CAT005">Construcción</option>
-                                <option value="CAT006">Oficina</option>
+                                <option value="" disabled ${empty prevCategoria ? 'selected' : ''}>Seleccione una categoría</option>
+                                <option value="CAT001" ${prevCategoria eq 'CAT001' ? 'selected' : ''}>Herramienta</option>
+                                <option value="CAT002" ${prevCategoria eq 'CAT002' ? 'selected' : ''}>Ropa</option>
+                                <option value="CAT003" ${prevCategoria eq 'CAT003' ? 'selected' : ''}>Cocina</option>
+                                <option value="CAT004" ${prevCategoria eq 'CAT004' ? 'selected' : ''}>Electrónica</option>
+                                <option value="CAT005" ${prevCategoria eq 'CAT005' ? 'selected' : ''}>Construcción</option>
+                                <option value="CAT006" ${prevCategoria eq 'CAT006' ? 'selected' : ''}>Oficina</option>
                             </select>
                         </div>
                     </div>
