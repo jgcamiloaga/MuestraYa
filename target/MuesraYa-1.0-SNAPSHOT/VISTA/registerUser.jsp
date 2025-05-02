@@ -13,7 +13,7 @@
         <title>MuestraYa - Registro de Usuario</title>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
         <!-- Usar el ResourceServlet para cargar el CSS -->
-        <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/CSS/registerUser-style.css">
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/CSS/registerUser-style.css">
     </head>
     <body>
         <div class="page-container">
