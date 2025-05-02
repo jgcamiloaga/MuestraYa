@@ -9,20 +9,15 @@
 <%
     // Verificar si estamos accediendo directamente a index.jsp (sin pasar por el servlet)
     // y si no existe alguna señal de que ya hemos sido redirigidos
+    String fromParam = request.getParameter("from");
+    
     if (request.getAttribute("materiales") == null && 
-        request.getAttribute("categorias") == null && 
-        request.getSession().getAttribute("redirected") == null) {
+        request.getAttribute("categorias") == null) {
         
-        // Marcar que hemos redirigido para evitar bucles infinitos
-        request.getSession().setAttribute("redirected", Boolean.TRUE);
-        
-        // Redireccionar al servlet ProductsServlet
-        response.sendRedirect(request.getContextPath() + "/products");
+        // Redireccionar al servlet ProductsServlet con un parámetro para evitar bucles
+        response.sendRedirect(request.getContextPath() + "/products?direct=true");
         return; // Importante: detener la ejecución aquí
     }
-    
-    // Limpiar el atributo de redirección para futuros cambios de página
-    request.getSession().removeAttribute("redirected");
 %>
 <!DOCTYPE html>
 <html lang="es">
