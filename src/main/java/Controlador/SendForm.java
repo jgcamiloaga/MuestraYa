@@ -150,7 +150,7 @@ public class SendForm extends HttpServlet {
             if (filasAfectadas > 0) {
                 // Registro exitoso
                 LOGGER.info("Material registrado exitosamente en la base de datos");
-                response.sendRedirect(request.getContextPath() + "/VISTA/listado.jsp?success=true");
+                response.sendRedirect(request.getContextPath() + "/materiales?success=true");
                 return;
             } else {
                 // Error al insertar
@@ -163,15 +163,29 @@ public class SendForm extends HttpServlet {
         } catch (SQLException e) {
             // Error de SQL
             LOGGER.log(Level.SEVERE, "Error SQL: {0}", e.getMessage());
-            String errorMsg = "Error de base de datos: " + e.getMessage();
+            String errorMsg = "Error al registrar el material";
 
             // Verificar si es un error de duplicado (código ya existe)
-            if (e.getMessage().contains("Duplicate entry")) {
-                errorMsg = "El código ya existe en la base de datos";
+            if (e.getMessage().toLowerCase().contains("duplicate") || e.getErrorCode() == 1062) {
+                errorMsg = "El código '" + codigo + "' ya existe en la base de datos.";
+                LOGGER.log(Level.INFO, "Intento de insertar código duplicado: {0}", codigo);
             }
 
+            // Guardar los valores del formulario para poder repoblarlo
             request.setAttribute("errorMessage", errorMsg);
-            request.getRequestDispatcher("/VISTA/registerMaterial.jsp").forward(request, response);
+            request.setAttribute("prevCodigo", codigo);
+            request.setAttribute("prevNombre", nombre);
+            request.setAttribute("prevPrecio", precioStr);
+            request.setAttribute("prevCategoria", categoria);
+            
+            try {
+                // Usar getRequestDispatcher y forward para mantener los atributos
+                request.getRequestDispatcher("/VISTA/registerMaterial.jsp").forward(request, response);
+            } catch (Exception ex) {
+                LOGGER.log(Level.SEVERE, "Error al redirigir después de una excepción SQL: {0}", ex.getMessage());
+                response.sendRedirect(request.getContextPath() + "/VISTA/registerMaterial.jsp?error=true");
+            }
+            return;
         } finally {
             // Cerrar recursos
             try {
