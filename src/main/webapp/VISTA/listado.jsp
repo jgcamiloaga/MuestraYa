@@ -1,28 +1,23 @@
-<%@page import="Modelo.Material"%>
-<%@page import="java.util.List"%>
-<%@page import="java.util.ArrayList"%>
-<%@page import="java.sql.PreparedStatement"%>
-<%@page import="java.sql.Connection"%>
-<%@page import="java.sql.ResultSet"%>
-<%@page import="java.math.BigDecimal"%>
-<%@page import="Controlador.ConexionDB"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@taglib prefix="c" uri="jakarta.tags.core"%>
+<%@taglib prefix="fn" uri="jakarta.tags.functions"%>
 <%
     // Configurar cabeceras para evitar caché
     response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
     response.setHeader("Pragma", "no-cache");
     response.setDateHeader("Expires", 0);
-%>
-<%
+    
     // Verificar si el usuario está autenticado
-    HttpSession userSession = request.getSession(false);
-    if (userSession == null || userSession.getAttribute("usuario") == null) {
+    if (session == null || session.getAttribute("usuario") == null) {
         response.sendRedirect(request.getContextPath() + "/login");
         return;
     }
-
-    // Obtener el usuario de la sesión
-    Modelo.Usuario usuarioActual = (Modelo.Usuario) userSession.getAttribute("usuario");
+    
+    // Si no hay materiales en el request, redirigir al servlet para cargarlos
+    if (request.getAttribute("materiales") == null) {
+        response.sendRedirect(request.getContextPath() + "/materiales");
+        return;
+    }
 %>
 <!DOCTYPE html>
 <html>
@@ -30,61 +25,23 @@
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>MuestraYa - Listado de Materiales</title>
+        <!-- CSS -->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-        <link rel="stylesheet" href="../CSS/listado-style.css">
-        <link rel="stylesheet" href="../CSS/cards-style.css">
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/CSS/listado-style.css">
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/CSS/cards-style.css">
+        
+        <!-- JavaScript -->
         <script>
-            //MENSAJE DE ELIMINAR UN PRODUCTO
+            // Variable global para el path del contexto
+            const contextPath = "${pageContext.request.contextPath}";
+            
+            // Función para confirmar eliminación de un material - INCORPORADA AQUÍ PARA GARANTIZAR FUNCIONAMIENTO
             function confirmarEliminar(id, nombre) {
                 if (confirm("¿Estás seguro de que deseas eliminar el material '" + nombre + "'?")) {
-                    window.location.href = "<%= request.getContextPath()%>/DeleteMaterial?id=" + id;
+                    window.location.href = contextPath + "/DeleteMaterial?id=" + id;
                 }
             }
-
-            //MENSAJE DE MATERIAL AÑADIDO
-            window.onload = function () {
-                const urlParams = new URLSearchParams(window.location.search);
-                const successParam = urlParams.get('success');
-                const deleteParam = urlParams.get('delete');
-
-                if (successParam === 'true') {
-                    mostrarNotificacion('Material registrado correctamente', 'success');
-                }
-
-                if (deleteParam === 'true') {
-                    mostrarNotificacion('Material eliminado correctamente', 'success');
-                }
-
-                if (urlParams.get('error') === 'true') {
-                    mostrarNotificacion('Ha ocurrido un error en la operación', 'error');
-                }
-
-                // Cargar la vista preferida al iniciar
-                const vistaPreferida = localStorage.getItem('vistaPreferida') || 'cards';
-                cambiarVista(vistaPreferida);
-            };
-
-            function mostrarNotificacion(mensaje, tipo) {
-                const notificacion = document.createElement('div');
-                notificacion.className = 'notificacion ' + tipo;
-                notificacion.innerHTML = '<i class="fas fa-' + (tipo === 'success' ? 'check-circle' : 'exclamation-circle') + '"></i> ' + mensaje;
-
-                document.body.appendChild(notificacion);
-
-                //MOSTRAR NOTIFICACION
-                setTimeout(function () {
-                    notificacion.classList.add('mostrar');
-                }, 100);
-
-                //OCULTAR LUEGO DE 3 SEGUNDOS
-                setTimeout(function () {
-                    notificacion.classList.remove('mostrar');
-                    setTimeout(function () {
-                        document.body.removeChild(notificacion);
-                    }, 300);
-                }, 3000);
-            }
-
+            
             // Función para cambiar entre vista de tabla y tarjetas
             function cambiarVista(tipo) {
                 const tablaContainer = document.getElementById('tabla-container');
@@ -108,21 +65,66 @@
                     }
                 }
             }
+            
+            // Mostrar notificación temporal
+            function mostrarNotificacion(mensaje, tipo) {
+                const notificacion = document.createElement('div');
+                notificacion.className = 'notificacion ' + tipo;
+                notificacion.innerHTML = '<i class="fas fa-' + (tipo === 'success' ? 'check-circle' : 'exclamation-circle') + '"></i> ' + mensaje;
+
+                document.body.appendChild(notificacion);
+
+                // Mostrar notificación
+                setTimeout(function() {
+                    notificacion.classList.add('mostrar');
+                }, 100);
+
+                // Ocultar luego de 3 segundos
+                setTimeout(function() {
+                    notificacion.classList.remove('mostrar');
+                    setTimeout(function() {
+                        document.body.removeChild(notificacion);
+                    }, 300);
+                }, 3000);
+            }
+            
+            // Código que se ejecuta al cargar la página
+            window.onload = function() {
+                // Verificar si hay mensajes de notificación en la URL
+                const urlParams = new URLSearchParams(window.location.search);
+                const successParam = urlParams.get('success');
+                const deleteParam = urlParams.get('delete');
+
+                if (successParam === 'true') {
+                    mostrarNotificacion('Material registrado correctamente', 'success');
+                }
+
+                if (deleteParam === 'true') {
+                    mostrarNotificacion('Material eliminado correctamente', 'success');
+                }
+
+                if (urlParams.get('error') === 'true') {
+                    mostrarNotificacion('Ha ocurrido un error en la operación', 'error');
+                }
+
+                // Cargar la vista preferida al iniciar
+                const vistaPreferida = localStorage.getItem('vistaPreferida') || 'cards';
+                cambiarVista(vistaPreferida);
+            };
         </script>
     </head>
     <body>
         <div class="header">
             <h1>Sistema de Gestión de Materiales</h1>
             <div class="user-info">
-                <span class="welcome-text">Bienvenido, <%= usuarioActual.getNombre()%></span>
+                <span class="welcome-text">Bienvenido, ${sessionScope.usuario.nombre}</span>
                 <div class="nav-links">
-                    <a href="registerMaterial.jsp" class="nav-link">
+                    <a href="${pageContext.request.contextPath}/VISTA/registerMaterial.jsp" class="nav-link">
                         <i class="fas fa-plus-circle"></i> Nuevo Material
                     </a>
-                    <a href="<%= request.getContextPath()%>/logout" class="nav-link logout-link">
+                    <a href="${pageContext.request.contextPath}/logout" class="nav-link logout-link">
                         <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
                     </a>
-
                 </div>
             </div>
         </div>
@@ -140,193 +142,99 @@
                 </div>
             </div>
 
-            <%
-                Connection cxn = null;
-                PreparedStatement ps = null;
-                ResultSet rs = null;
-
-                // SQL
-                String sql = "SELECT m.idMaterial, m.nombre, m.precio, m.idCategoria, m.imagen, "
-                        + "CASE "
-                        + "    WHEN m.idCategoria = 'CAT001' THEN 'Herramienta' "
-                        + "    WHEN m.idCategoria = 'CAT002' THEN 'Ropa' "
-                        + "    WHEN m.idCategoria = 'CAT003' THEN 'Cocina' "
-                        + "    WHEN m.idCategoria = 'CAT004' THEN 'Electrónica' "
-                        + "    WHEN m.idCategoria = 'CAT005' THEN 'Construcción' "
-                        + "    WHEN m.idCategoria = 'CAT006' THEN 'Oficina' "
-                        + "    ELSE 'Sin categoría' "
-                        + "END AS nombreCategoria "
-                        + "FROM material m "
-                        + "ORDER BY m.nombre ASC";
-
-                List<Material> lista = new ArrayList<>();
-
-                try {
-                    // Obtener la conexión de la base de datos
-                    cxn = ConexionDB.getConnection();
-
-                    // Preparar y ejecutar la consulta SQL
-                    ps = cxn.prepareStatement(sql);
-                    rs = ps.executeQuery();
-
-                    // Procesar los resultados de la consulta
-                    while (rs.next()) {
-                        BigDecimal precio = rs.getBigDecimal("precio");
-                        Material m = new Material(
-                                rs.getString("idMaterial"),
-                                rs.getString("nombre"),
-                                precio
-                        );
-                        // Añadir la categoría al objeto Material
-                        m.setIdCategoria(rs.getString("idCategoria"));
-                        m.setNombreCategoria(rs.getString("nombreCategoria"));
-                        // Añadir la imagen al objeto Material
-                        m.setImagen(rs.getString("imagen"));
-                        lista.add(m);
-                    }
-
-                    rs.close();
-                } catch (Exception e) {
-                    out.println("<div class='error'><i class='fas fa-exclamation-circle'></i> Error: " + e.getMessage() + "</div>");
-                } finally {
-                    try {
-                        if (ps != null) {
-                            ps.close();
-                        }
-                        if (cxn != null) {
-                            cxn.close();
-                        }
-                    } catch (Exception e) {
-                        out.println("<div class='error'><i class='fas fa-exclamation-circle'></i> Error al cerrar recursos: " + e.getMessage() + "</div>");
-                    }
-                }
-            %>
-
-            <% if (!lista.isEmpty()) { %>
-            <!-- Vista de tabla (original) -->
-            <div id="tabla-container" class="table-container">
-                <table class="materials-table">
-                    <thead>
-                        <tr>
-                            <th class="col-id">ID</th>
-                            <th class="col-name">Nombre</th>
-                            <th class="col-category">Categoría</th>
-                            <th class="col-price">Precio</th>
-                            <th class="col-actions">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <% for (Material m : lista) {%>
-                        <tr>
-                            <td class="col-id"><%= m.getIdMaterial()%></td>
-                            <td class="col-name"><%= m.getNombre()%></td>
-                            <td class="col-category">
-                                <span class="category-badge <%= m.getIdCategoria().toLowerCase()%>">
-                                    <i class="<%= getCategoryIcon(m.getIdCategoria())%>"></i>
-                                    <%= m.getNombreCategoria()%>
-                                </span>
-                            </td>
-                            <td class="col-price">
-                                <span class="price">$<%= m.getPrecio()%></span>
-                            </td>
-                            <td class="col-actions">
-                                <button class="delete-btn" onclick="confirmarEliminar('<%= m.getIdMaterial()%>', '<%= m.getNombre()%>')">
-                                    <i class="fas fa-trash-alt"></i>
-                                </button>
-                            </td>
-                        </tr>
-                        <% } %>
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Vista de tarjetas (nueva) -->
-            <div id="cards-container" class="cards-container">
-                <% for (Material m : lista) {%>
-                <div class="material-card <%= m.getIdCategoria().toLowerCase()%>">
-                    <div class="card-image">
-                        <% if (m.getImagen() != null && !m.getImagen().isEmpty() && !m.getImagen().equals("default.jpg")) {%>
-                        <img src="<%= request.getContextPath() %>/image/<%= m.getImagen()%>" alt="<%= m.getNombre()%>" onerror="this.onerror=null; this.src='<%= request.getContextPath() %>/image/default.jpg';">
-                        <% } else {%>
-                        <div class="default-image">
-                            <i class="<%= getCategoryIcon(m.getIdCategoria())%>"></i>
-                        </div>
-                        <% }%>
-                        <div class="card-category">
-                            <span class="category-badge <%= m.getIdCategoria().toLowerCase()%>">
-                                <i class="<%= getCategoryIcon(m.getIdCategoria())%>"></i>
-                                <%= m.getNombreCategoria()%>
-                            </span>
-                        </div>
+            <c:choose>
+                <c:when test="${not empty materiales}">
+                    <!-- Vista de tabla -->
+                    <div id="tabla-container" class="table-container">
+                        <table class="materials-table">
+                            <thead>
+                                <tr>
+                                    <th class="col-id">ID</th>
+                                    <th class="col-name">Nombre</th>
+                                    <th class="col-category">Categoría</th>
+                                    <th class="col-price">Precio</th>
+                                    <th class="col-actions">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <c:forEach items="${materiales}" var="material">
+                                    <c:set var="categoryClass" value="${fn:toLowerCase(material.idCategoria)}"/>
+                                    <tr>
+                                        <td class="col-id">${material.idMaterial}</td>
+                                        <td class="col-name">${material.nombre}</td>
+                                        <td class="col-category">
+                                            <span class="category-badge ${categoryClass}">
+                                                <i class="${Controlador.MaterialesServlet.getCategoryIcon(material.idCategoria)}"></i>
+                                                ${material.nombreCategoria}
+                                            </span>
+                                        </td>
+                                        <td class="col-price">
+                                            <span class="price">$${material.precio}</span>
+                                        </td>
+                                        <td class="col-actions">
+                                            <button class="delete-btn" onclick="confirmarEliminar('${material.idMaterial}', '${material.nombre}')">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </c:forEach>
+                            </tbody>
+                        </table>
                     </div>
-                    <div class="card-content">
-                        <h3 class="card-title"><%= m.getNombre()%></h3>
-                        <div class="card-details">
-                            <div class="card-id">
-                                <span class="detail-label">ID:</span>
-                                <span class="detail-value"><%= m.getIdMaterial()%></span>
+
+                    <!-- Vista de tarjetas -->
+                    <div id="cards-container" class="cards-container">
+                        <c:forEach items="${materiales}" var="material">
+                            <c:set var="categoryClass" value="${fn:toLowerCase(material.idCategoria)}"/>
+                            <div class="material-card ${categoryClass}">
+                                <div class="card-image">
+                                    <c:choose>
+                                        <c:when test="${not empty material.imagen and material.imagen ne 'default.jpg'}">
+                                            <img src="${pageContext.request.contextPath}/image/${material.imagen}" 
+                                                 alt="${material.nombre}" 
+                                                 onerror="this.onerror=null; this.src='${pageContext.request.contextPath}/image/default.jpg';">
+                                        </c:when>
+                                        <c:otherwise>
+                                            <div class="default-image">
+                                                <i class="${Controlador.MaterialesServlet.getCategoryIcon(material.idCategoria)}"></i>
+                                            </div>
+                                        </c:otherwise>
+                                    </c:choose>
+                                    <div class="card-category">
+                                        <span class="category-badge ${categoryClass}">
+                                            <i class="${Controlador.MaterialesServlet.getCategoryIcon(material.idCategoria)}"></i>
+                                            ${material.nombreCategoria}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="card-content">
+                                    <h3 class="card-title">${material.nombre}</h3>
+                                    <div class="card-details">
+                                        <div class="card-id">
+                                            <span class="detail-label">ID:</span>
+                                            <span class="detail-value">${material.idMaterial}</span>
+                                        </div>
+                                        <div class="card-price">
+                                            <span class="price">$${material.precio}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-actions">
+                                    <button class="delete-btn" onclick="confirmarEliminar('${material.idMaterial}', '${material.nombre}')">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </div>
                             </div>
-                            <div class="card-price">
-                                <span class="price">$<%= m.getPrecio()%></span>
-                            </div>
-                        </div>
+                        </c:forEach>
                     </div>
-                    <div class="card-actions">
-                        <button class="delete-btn" onclick="confirmarEliminar('<%= m.getIdMaterial()%>', '<%= m.getNombre()%>')">
-                            <i class="fas fa-trash-alt"></i>
-                        </button>
+                </c:when>
+                <c:otherwise>
+                    <div class="no-data">
+                        <i class="fas fa-database"></i>
+                        <p>No hay materiales disponibles.</p>
                     </div>
-                </div>
-                <% } %>
-            </div>
-            <% } else { %>
-            <div class="no-data">
-                <i class="fas fa-database"></i>
-                <p>No hay materiales disponibles.</p>
-            </div>
-            <% }%>
+                </c:otherwise>
+            </c:choose>
         </div>
     </body>
 </html>
-
-<%!
-    // Método para obtener el icono correspondiente a cada categoría
-    private String getCategoryIcon(String categoryId) {
-        switch (categoryId) {
-            case "CAT001":
-                return "fas fa-tools";          // Herramienta
-            case "CAT002":
-                return "fas fa-tshirt";         // Ropa
-            case "CAT003":
-                return "fas fa-utensils";       // Cocina
-            case "CAT004":
-                return "fas fa-laptop";         // Electrónica
-            case "CAT005":
-                return "fas fa-hard-hat";       // Construcción
-            case "CAT006":
-                return "fas fa-briefcase";      // Oficina
-            default:
-                return "fas fa-tag";                  // Por defecto
-        }
-    }
-
-    // Método para obtener el color correspondiente a cada categoría
-    private String getCategoryColor(String categoryId) {
-        switch (categoryId) {
-            case "CAT001":
-                return "#3a86ff";          // Herramienta
-            case "CAT002":
-                return "#ff006e";         // Ropa
-            case "CAT003":
-                return "#fb5607";       // Cocina
-            case "CAT004":
-                return "#8338ec";         // Electrónica
-            case "CAT005":
-                return "#ffbe0b";       // Construcción
-            case "CAT006":
-                return "#06d6a0";      // Oficina
-            default:
-                return "#8d99ae";                  // Por defecto
-        }
-    }
-%>
