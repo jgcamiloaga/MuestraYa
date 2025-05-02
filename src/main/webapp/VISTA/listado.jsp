@@ -119,6 +119,9 @@
             <div class="user-info">
                 <span class="welcome-text">Bienvenido, ${sessionScope.usuario.nombre}</span>
                 <div class="nav-links">
+                    <a href="${pageContext.request.contextPath}/products?from=listado" class="nav-link home-link">
+                        <i class="fas fa-home"></i> Página Principal
+                    </a>
                     <a href="${pageContext.request.contextPath}/VISTA/registerMaterial.jsp" class="nav-link">
                         <i class="fas fa-plus-circle"></i> Nuevo Material
                     </a>
