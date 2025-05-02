@@ -1,9 +1,3 @@
-<%-- 
-    Document   : Login
-    Created on : 17 abr. 2025, 6:54:50 p. m.
-    Author     : Johann
---%>
-
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html lang="es">
@@ -12,7 +6,6 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>MuestraYa - Iniciar Sesión</title>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-        <!-- Usar el ResourceServlet para cargar el CSS -->
         <link rel="stylesheet" href="${pageContext.request.contextPath}/CSS/login-style.css">
         <style>
         </style>

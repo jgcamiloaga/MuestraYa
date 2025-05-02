@@ -112,6 +112,32 @@
                 cambiarVista(vistaPreferida);
             };
         </script>
+        
+        <!-- Estilos adicionales para asegurar compatibilidad con FontAwesome -->
+        <style>
+            .material-card .default-image i,
+            .category-badge i {
+                display: inline-block !important;
+                margin-right: 5px;
+                font-size: 14px;
+            }
+            
+            /* Asegurar que las categorías tengan los colores correctos */
+            .category-badge.cat001 { background-color: var(--cat001-color); }
+            .category-badge.cat002 { background-color: var(--cat002-color); }
+            .category-badge.cat003 { background-color: var(--cat003-color); }
+            .category-badge.cat004 { background-color: var(--cat004-color); }
+            .category-badge.cat005 { background-color: var(--cat005-color); }
+            .category-badge.cat006 { background-color: var(--cat006-color); }
+            
+            /* Material cards clases para categorías */
+            .material-card.cat001 { border-top: 4px solid var(--cat001-color); }
+            .material-card.cat002 { border-top: 4px solid var(--cat002-color); }
+            .material-card.cat003 { border-top: 4px solid var(--cat003-color); }
+            .material-card.cat004 { border-top: 4px solid var(--cat004-color); }
+            .material-card.cat005 { border-top: 4px solid var(--cat005-color); }
+            .material-card.cat006 { border-top: 4px solid var(--cat006-color); }
+        </style>
     </head>
     <body>
         <div class="header">
@@ -161,13 +187,20 @@
                             </thead>
                             <tbody>
                                 <c:forEach items="${materiales}" var="material">
-                                    <c:set var="categoryClass" value="${fn:toLowerCase(material.idCategoria)}"/>
+                                    <c:set var="categoryClass" value="cat${fn:substring(material.idCategoria, 3, 6)}"/>
                                     <tr>
                                         <td class="col-id">${material.idMaterial}</td>
                                         <td class="col-name">${material.nombre}</td>
                                         <td class="col-category">
                                             <span class="category-badge ${categoryClass}">
-                                                <i class="${Controlador.MaterialesServlet.getCategoryIcon(material.idCategoria)}"></i>
+                                                <i class="<c:out value="${
+                                                    material.idCategoria eq 'CAT001' ? 'fas fa-tools' :
+                                                    material.idCategoria eq 'CAT002' ? 'fas fa-tshirt' :
+                                                    material.idCategoria eq 'CAT003' ? 'fas fa-utensils' :
+                                                    material.idCategoria eq 'CAT004' ? 'fas fa-laptop' :
+                                                    material.idCategoria eq 'CAT005' ? 'fas fa-hard-hat' :
+                                                    material.idCategoria eq 'CAT006' ? 'fas fa-briefcase' : 'fas fa-tag'
+                                                }"/>"></i>
                                                 ${material.nombreCategoria}
                                             </span>
                                         </td>
@@ -188,7 +221,7 @@
                     <!-- Vista de tarjetas -->
                     <div id="cards-container" class="cards-container">
                         <c:forEach items="${materiales}" var="material">
-                            <c:set var="categoryClass" value="${fn:toLowerCase(material.idCategoria)}"/>
+                            <c:set var="categoryClass" value="cat${fn:substring(material.idCategoria, 3, 6)}"/>
                             <div class="material-card ${categoryClass}">
                                 <div class="card-image">
                                     <c:choose>
@@ -199,13 +232,27 @@
                                         </c:when>
                                         <c:otherwise>
                                             <div class="default-image">
-                                                <i class="${Controlador.MaterialesServlet.getCategoryIcon(material.idCategoria)}"></i>
+                                                <i class="<c:out value="${
+                                                    material.idCategoria eq 'CAT001' ? 'fas fa-tools' :
+                                                    material.idCategoria eq 'CAT002' ? 'fas fa-tshirt' :
+                                                    material.idCategoria eq 'CAT003' ? 'fas fa-utensils' :
+                                                    material.idCategoria eq 'CAT004' ? 'fas fa-laptop' :
+                                                    material.idCategoria eq 'CAT005' ? 'fas fa-hard-hat' :
+                                                    material.idCategoria eq 'CAT006' ? 'fas fa-briefcase' : 'fas fa-tag'
+                                                }"/>"></i>
                                             </div>
                                         </c:otherwise>
                                     </c:choose>
                                     <div class="card-category">
                                         <span class="category-badge ${categoryClass}">
-                                            <i class="${Controlador.MaterialesServlet.getCategoryIcon(material.idCategoria)}"></i>
+                                            <i class="<c:out value="${
+                                                material.idCategoria eq 'CAT001' ? 'fas fa-tools' :
+                                                material.idCategoria eq 'CAT002' ? 'fas fa-tshirt' :
+                                                material.idCategoria eq 'CAT003' ? 'fas fa-utensils' :
+                                                material.idCategoria eq 'CAT004' ? 'fas fa-laptop' :
+                                                material.idCategoria eq 'CAT005' ? 'fas fa-hard-hat' :
+                                                material.idCategoria eq 'CAT006' ? 'fas fa-briefcase' : 'fas fa-tag'
+                                            }"/>"></i>
                                             ${material.nombreCategoria}
                                         </span>
                                     </div>
