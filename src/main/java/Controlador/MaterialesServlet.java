@@ -34,6 +34,22 @@ public class MaterialesServlet extends HttpServlet {
         List<Material> materiales = cargarMateriales();
         request.setAttribute("materiales", materiales);
         
+        // Obtener los parámetros de la solicitud para mensajes de éxito o error
+        String deleteParam = request.getParameter("delete");
+        String errorParam = request.getParameter("error");
+        String successParam = request.getParameter("success");
+        
+        // Mantener estos parámetros para la vista
+        if (deleteParam != null) {
+            request.setAttribute("delete", deleteParam);
+        }
+        if (errorParam != null) {
+            request.setAttribute("error", errorParam);
+        }
+        if (successParam != null) {
+            request.setAttribute("success", successParam);
+        }
+        
         // Reenviar a la vista
         request.getRequestDispatcher("/VISTA/listado.jsp").forward(request, response);
     }
@@ -105,50 +121,6 @@ public class MaterialesServlet extends HttpServlet {
             if (cxn != null) cxn.close();
         } catch (SQLException e) {
             System.err.println("Error al cerrar recursos: " + e.getMessage());
-        }
-    }
-    
-    /**
-     * Obtiene el icono correspondiente a cada categoría
-     */
-    public static String getCategoryIcon(String categoryId) {
-        switch (categoryId) {
-            case "CAT001":
-                return "fas fa-tools";          // Herramienta
-            case "CAT002":
-                return "fas fa-tshirt";         // Ropa
-            case "CAT003":
-                return "fas fa-utensils";       // Cocina
-            case "CAT004":
-                return "fas fa-laptop";         // Electrónica
-            case "CAT005":
-                return "fas fa-hard-hat";       // Construcción
-            case "CAT006":
-                return "fas fa-briefcase";      // Oficina
-            default:
-                return "fas fa-tag";            // Por defecto
-        }
-    }
-
-    /**
-     * Obtiene el color correspondiente a cada categoría
-     */
-    public static String getCategoryColor(String categoryId) {
-        switch (categoryId) {
-            case "CAT001":
-                return "#3a86ff";          // Herramienta
-            case "CAT002":
-                return "#ff006e";         // Ropa
-            case "CAT003":
-                return "#fb5607";       // Cocina
-            case "CAT004":
-                return "#8338ec";         // Electrónica
-            case "CAT005":
-                return "#ffbe0b";       // Construcción
-            case "CAT006":
-                return "#06d6a0";      // Oficina
-            default:
-                return "#8d99ae";                  // Por defecto
         }
     }
 }
