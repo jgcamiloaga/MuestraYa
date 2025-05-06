@@ -1,5 +1,6 @@
-package Controlador;
+package controlador;
 
+import servicios.ConexionDB;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
