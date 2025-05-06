@@ -1,7 +1,8 @@
-package Controlador;
+package controlador;
 
-import Modelo.Usuario;
-import Util.PasswordUtil;
+import servicios.ConexionDB;
+import modelo.Usuario;
+import servicios.PasswordUtil;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -41,12 +42,13 @@ public class LoginServlet extends HttpServlet {
         // Si ya hay una sesión activa, redirigir al listado
         HttpSession session = request.getSession(false);
         if (session != null && session.getAttribute("usuario") != null) {
-            response.sendRedirect(request.getContextPath() + "/VISTA/listado.jsp");
+            // Redirigir al servlet de materiales en lugar de directamente al JSP
+            response.sendRedirect(request.getContextPath() + "/materiales"); 
             return;
         }
 
         // Si no hay sesión, mostrar la página de login
-        request.getRequestDispatcher("/VISTA/login.jsp").forward(request, response);
+        request.getRequestDispatcher("/vista/login.jsp").forward(request, response);
     }
 
     @Override
@@ -58,7 +60,7 @@ public class LoginServlet extends HttpServlet {
         // Validar que los campos no estén vacíos
         if (email == null || email.trim().isEmpty() || password == null || password.trim().isEmpty()) {
             request.setAttribute("errorMessage", "Por favor, complete todos los campos");
-            request.getRequestDispatcher("/VISTA/login.jsp").forward(request, response);
+            request.getRequestDispatcher("/vista/login.jsp").forward(request, response);
             return;
         }
 
@@ -71,7 +73,7 @@ public class LoginServlet extends HttpServlet {
 
             if (conn == null) {
                 request.setAttribute("errorMessage", "Error de conexión a la base de datos");
-                request.getRequestDispatcher("/VISTA/login.jsp").forward(request, response);
+                request.getRequestDispatcher("/vista/login.jsp").forward(request, response);
                 return;
             }
 
@@ -101,22 +103,22 @@ public class LoginServlet extends HttpServlet {
                     session.setAttribute("isLoggedIn", true);
                     session.setMaxInactiveInterval(30 * 60); // 30 minutos
 
-                    // Redirigir a la nueva ubicación en vez de listado.jsp
-                    response.sendRedirect(request.getContextPath() + "/VISTA/registerMaterial.jsp");
+                    // Redirigir al servlet de materiales después del login exitoso
+                    response.sendRedirect(request.getContextPath() + "/materiales");
                 } else {
                     // Contraseña incorrecta
                     request.setAttribute("errorMessage", "Email o contraseña incorrectos");
-                    request.getRequestDispatcher("/VISTA/login.jsp").forward(request, response);
+                    request.getRequestDispatcher("/vista/login.jsp").forward(request, response);
                 }
             } else {
                 // Usuario no encontrado
                 request.setAttribute("errorMessage", "Email o contraseña incorrectos");
-                request.getRequestDispatcher("/VISTA/login.jsp").forward(request, response);
+                request.getRequestDispatcher("/vista/login.jsp").forward(request, response);
             }
 
         } catch (SQLException e) {
             request.setAttribute("errorMessage", "Error: " + e.getMessage());
-            request.getRequestDispatcher("/VISTA/login.jsp").forward(request, response);
+            request.getRequestDispatcher("/vista/login.jsp").forward(request, response);
         } finally {
             try {
                 if (rs != null) {
