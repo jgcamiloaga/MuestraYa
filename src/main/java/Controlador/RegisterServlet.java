@@ -1,6 +1,7 @@
-package Controlador;
+package controlador;
 
-import Util.PasswordUtil;
+import servicios.ConexionDB;
+import servicios.PasswordUtil;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -50,7 +51,7 @@ public class RegisterServlet extends HttpServlet {
         response.setDateHeader("Expires", 0);
         
         // Si no hay sesión, mostrar la página de registro
-        request.getRequestDispatcher("/VISTA/registerUser.jsp").forward(request, response);
+        request.getRequestDispatcher("/vista/registerUser.jsp").forward(request, response);
     }
 
     @Override
@@ -71,14 +72,14 @@ public class RegisterServlet extends HttpServlet {
                 || rol == null || rol.trim().isEmpty()) {
 
             request.setAttribute("errorMessage", "Por favor, complete todos los campos");
-            request.getRequestDispatcher("/VISTA/registerUser.jsp").forward(request, response);
+            request.getRequestDispatcher("/vista/registerUser.jsp").forward(request, response);
             return;
         }
 
         // Validar que las contraseñas coincidan
         if (!password.equals(confirmPassword)) {
             request.setAttribute("errorMessage", "Las contraseñas no coinciden");
-            request.getRequestDispatcher("/VISTA/registerUser.jsp").forward(request, response);
+            request.getRequestDispatcher("/vista/registerUser.jsp").forward(request, response);
             return;
         }
 
@@ -87,7 +88,7 @@ public class RegisterServlet extends HttpServlet {
                 || !password.matches(".*[a-z].*") || !password.matches(".*[0-9].*")) {
 
             request.setAttribute("errorMessage", "La contraseña debe tener al menos 8 caracteres, incluir mayúsculas, minúsculas y números");
-            request.getRequestDispatcher("/VISTA/registerUser.jsp").forward(request, response);
+            request.getRequestDispatcher("/vista/registerUser.jsp").forward(request, response);
             return;
         }
 
@@ -100,7 +101,7 @@ public class RegisterServlet extends HttpServlet {
 
             if (conn == null) {
                 request.setAttribute("errorMessage", "Error de conexión a la base de datos");
-                request.getRequestDispatcher("/VISTA/registerUser.jsp").forward(request, response);
+                request.getRequestDispatcher("/vista/registerUser.jsp").forward(request, response);
                 return;
             }
 
@@ -112,7 +113,7 @@ public class RegisterServlet extends HttpServlet {
 
             if (rs.next() && rs.getInt(1) > 0) {
                 request.setAttribute("errorMessage", "El correo electrónico ya está registrado");
-                request.getRequestDispatcher("/VISTA/registerUser.jsp").forward(request, response);
+                request.getRequestDispatcher("/vista/registerUser.jsp").forward(request, response);
                 return;
             }
 
@@ -140,16 +141,16 @@ public class RegisterServlet extends HttpServlet {
             if (rowsAffected > 0) {
                 // Registro exitoso
                 request.setAttribute("successMessage", "Registro exitoso. Ahora puede iniciar sesión.");
-                request.getRequestDispatcher("/VISTA/login.jsp").forward(request, response);
+                request.getRequestDispatcher("/vista/login.jsp").forward(request, response);
             } else {
                 // Error al registrar
                 request.setAttribute("errorMessage", "Error al registrar el usuario. Inténtelo de nuevo.");
-                request.getRequestDispatcher("/VISTA/registerUser.jsp").forward(request, response);
+                request.getRequestDispatcher("/vista/registerUser.jsp").forward(request, response);
             }
 
         } catch (SQLException e) {
             request.setAttribute("errorMessage", "Error: " + e.getMessage());
-            request.getRequestDispatcher("/VISTA/registerUser.jsp").forward(request, response);
+            request.getRequestDispatcher("/vista/registerUser.jsp").forward(request, response);
         } finally {
             try {
                 if (rs != null) {
