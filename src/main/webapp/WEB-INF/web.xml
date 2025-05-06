@@ -9,6 +9,10 @@
         <servlet-name>default</servlet-name>
         <url-pattern>/CSS/*</url-pattern>
     </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>default</servlet-name>
+        <url-pattern>/recursos/*</url-pattern>
+    </servlet-mapping>
     
     <session-config>
         <session-timeout>
