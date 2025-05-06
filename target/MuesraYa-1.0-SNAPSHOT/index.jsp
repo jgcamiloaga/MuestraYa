@@ -22,20 +22,20 @@
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
         <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-        <link href="${pageContext.request.contextPath}/CSS/index-style.css" rel="stylesheet">
+        <link href="${pageContext.request.contextPath}/recursos/css/index-style.css" rel="stylesheet">
     </head>
     <body>
         <!-- Navigation Bar -->
         <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
             <div class="container">
-                <a class="navbar-brand" href="index.jsp">MuestraYa</a>
+                <a class="navbar-brand" href="${pageContext.request.contextPath}/">MuestraYa</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav me-auto">
                         <li class="nav-item">
-                            <a class="nav-link active" href="index.jsp">Inicio</a>
+                            <a class="nav-link active" href="${pageContext.request.contextPath}/">Inicio</a>
                         </li>
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
@@ -43,18 +43,18 @@
                             </a>
                             <ul class="dropdown-menu">
                                 <c:forEach var="categoria" items="${categorias}">
-                                    <li><a class="dropdown-item" href="products?action=category&id=${categoria.idCategoria}">${categoria.nombre}</a></li>
+                                    <li><a class="dropdown-item" href="${pageContext.request.contextPath}/products?action=category&id=${categoria.idCategoria}">${categoria.nombre}</a></li>
                                 </c:forEach>
                             </ul>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="VISTA/registerMaterial.jsp">Registrar Material</a>
+                            <a class="nav-link" href="${pageContext.request.contextPath}/vista/registerMaterial.jsp">Registrar Material</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="VISTA/listado.jsp">Administrar</a>
+                            <a class="nav-link" href="${pageContext.request.contextPath}/materiales">Administrar</a>
                         </li>
                     </ul>
-                    <form class="d-flex me-2" action="products" method="get">
+                    <form class="d-flex me-2" action="${pageContext.request.contextPath}/products" method="get">
                         <input type="hidden" name="action" value="search">
                         <input class="form-control me-2" type="search" name="query" placeholder="Buscar productos..." value="${searchQuery}">
                         <button class="btn btn-outline-light" type="submit">Buscar</button>
@@ -62,7 +62,7 @@
                     <div class="d-flex">
                         <c:choose>
                             <c:when test="${empty sessionScope.usuario}">
-                                <a href="VISTA/login.jsp" class="btn btn-primary">Iniciar Sesión</a>
+                                <a href="${pageContext.request.contextPath}/login" class="btn btn-primary">Iniciar Sesión</a>
                             </c:when>
                             <c:otherwise>
                                 <div class="dropdown">
@@ -70,9 +70,9 @@
                                         ${sessionScope.usuario.nombre}
                                     </button>
                                     <ul class="dropdown-menu dropdown-menu-end">
-                                        <li><a class="dropdown-item" href="VISTA/listado.jsp">Administrar Productos</a></li>
+                                        <li><a class="dropdown-item" href="${pageContext.request.contextPath}/materiales">Administrar Productos</a></li>
                                         <li><hr class="dropdown-divider"></li>
-                                        <li><a class="dropdown-item" href="logout">Cerrar Sesión</a></li>
+                                        <li><a class="dropdown-item" href="${pageContext.request.contextPath}/logout">Cerrar Sesión</a></li>
                                     </ul>
                                 </div>
                             </c:otherwise>
@@ -110,9 +110,9 @@
                         </c:choose>
                     </h2>
                     <div class="d-flex flex-wrap gap-2 mt-4">
-                        <a href="products" class="btn category-btn ${empty selectedCategoria ? 'btn-primary' : 'btn-outline-primary'}">Todos</a>
+                        <a href="${pageContext.request.contextPath}/products" class="btn category-btn ${empty selectedCategoria ? 'btn-primary' : 'btn-outline-primary'}">Todos</a>
                         <c:forEach var="categoria" items="${categorias}">
-                            <a href="products?action=category&id=${categoria.idCategoria}" 
+                            <a href="${pageContext.request.contextPath}/products?action=category&id=${categoria.idCategoria}" 
                                class="btn category-btn ${selectedCategoria.idCategoria eq categoria.idCategoria ? 'btn-primary' : 'btn-outline-primary'}">
                                 ${categoria.nombre}
                             </a>
@@ -154,7 +154,7 @@
                                         <div class="mt-auto">
                                             <div class="d-flex justify-content-between align-items-center">
                                                 <span class="badge bg-secondary">${material.idMaterial}</span>
-                                                <a href="VISTA/listado.jsp" class="btn btn-sm btn-outline-secondary">
+                                                <a href="${pageContext.request.contextPath}/materiales" class="btn btn-sm btn-outline-secondary">
                                                     <i class="fas fa-eye"></i> Ver Detalles
                                                 </a>
                                             </div>
@@ -243,10 +243,10 @@
                     <div class="col-md-4 mb-4 mb-md-0">
                         <h5>Enlaces Rápidos</h5>
                         <ul class="list-unstyled">
-                            <li><a href="index.jsp"><i class="fas fa-chevron-right me-2"></i>Inicio</a></li>
-                            <li><a href="products"><i class="fas fa-chevron-right me-2"></i>Productos</a></li>
-                            <li><a href="VISTA/registerMaterial.jsp"><i class="fas fa-chevron-right me-2"></i>Registrar Material</a></li>
-                            <li><a href="VISTA/listado.jsp"><i class="fas fa-chevron-right me-2"></i>Administrar</a></li>
+                            <li><a href="${pageContext.request.contextPath}/"><i class="fas fa-chevron-right me-2"></i>Inicio</a></li>
+                            <li><a href="${pageContext.request.contextPath}/products"><i class="fas fa-chevron-right me-2"></i>Productos</a></li>
+                            <li><a href="${pageContext.request.contextPath}/vista/registerMaterial.jsp"><i class="fas fa-chevron-right me-2"></i>Registrar Material</a></li>
+                            <li><a href="${pageContext.request.contextPath}/materiales"><i class="fas fa-chevron-right me-2"></i>Administrar</a></li>
                             <li><a href="#"><i class="fas fa-chevron-right me-2"></i>Términos y Condiciones</a></li>
                             <li><a href="#"><i class="fas fa-chevron-right me-2"></i>Política de Privacidad</a></li>
                         </ul>
