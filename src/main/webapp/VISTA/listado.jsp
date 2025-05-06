@@ -27,8 +27,8 @@
         <title>MuestraYa - Listado de Materiales</title>
         <!-- CSS -->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-        <link rel="stylesheet" href="${pageContext.request.contextPath}/CSS/listado-style.css">
-        <link rel="stylesheet" href="${pageContext.request.contextPath}/CSS/cards-style.css">
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/recursos/css/listado-style.css">
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/recursos/css/cards-style.css">
         
         <!-- JavaScript -->
         <script>
@@ -148,7 +148,7 @@
                     <a href="${pageContext.request.contextPath}/products?from=listado" class="nav-link home-link">
                         <i class="fas fa-home"></i> Página Principal
                     </a>
-                    <a href="${pageContext.request.contextPath}/VISTA/registerMaterial.jsp" class="nav-link">
+                    <a href="${pageContext.request.contextPath}/vista/registerMaterial.jsp" class="nav-link">
                         <i class="fas fa-plus-circle"></i> Nuevo Material
                     </a>
                     <a href="${pageContext.request.contextPath}/logout" class="nav-link logout-link">
