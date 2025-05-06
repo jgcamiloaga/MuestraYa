@@ -1,5 +1,6 @@
-package Controlador;
+package controlador;
 
+import servicios.ConexionDB;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -56,7 +57,7 @@ public class SendForm extends HttpServlet {
         } catch (NumberFormatException e) {
             LOGGER.log(Level.WARNING, "Error en formato de precio: {0}", e.getMessage());
             request.setAttribute("errorMessage", "El precio debe ser un número válido");
-            request.getRequestDispatcher("/VISTA/registerMaterial.jsp").forward(request, response);
+            request.getRequestDispatcher("/vista/registerMaterial.jsp").forward(request, response);
             return;
         }
 
@@ -127,7 +128,7 @@ public class SendForm extends HttpServlet {
             if (conn == null) {
                 LOGGER.severe("No se pudo establecer conexión con la base de datos");
                 request.setAttribute("errorMessage", "No se pudo establecer conexión con la base de datos");
-                request.getRequestDispatcher("/VISTA/registerMaterial.jsp").forward(request, response);
+                request.getRequestDispatcher("/vista/registerMaterial.jsp").forward(request, response);
                 return;
             }
 
@@ -156,7 +157,7 @@ public class SendForm extends HttpServlet {
                 // Error al insertar
                 LOGGER.warning("No se insertaron filas en la base de datos");
                 request.setAttribute("errorMessage", "Error al registrar el material");
-                request.getRequestDispatcher("/VISTA/registerMaterial.jsp").forward(request, response);
+                request.getRequestDispatcher("/vista/registerMaterial.jsp").forward(request, response);
                 return;
             }
 
@@ -180,10 +181,10 @@ public class SendForm extends HttpServlet {
             
             try {
                 // Usar getRequestDispatcher y forward para mantener los atributos
-                request.getRequestDispatcher("/VISTA/registerMaterial.jsp").forward(request, response);
+                request.getRequestDispatcher("/vista/registerMaterial.jsp").forward(request, response);
             } catch (Exception ex) {
                 LOGGER.log(Level.SEVERE, "Error al redirigir después de una excepción SQL: {0}", ex.getMessage());
-                response.sendRedirect(request.getContextPath() + "/VISTA/registerMaterial.jsp?error=true");
+                response.sendRedirect(request.getContextPath() + "/vista/registerMaterial.jsp?error=true");
             }
             return;
         } finally {
@@ -204,7 +205,7 @@ public class SendForm extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        response.sendRedirect(request.getContextPath() + "/VISTA/registerMaterial.jsp");
+        response.sendRedirect(request.getContextPath() + "/vista/registerMaterial.jsp");
     }
     
     @Override
