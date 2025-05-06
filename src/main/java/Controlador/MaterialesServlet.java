@@ -1,6 +1,7 @@
-package Controlador;
+package controlador;
 
-import Modelo.Material;
+import servicios.ConexionDB;
+import modelo.Material;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.Connection;
@@ -26,7 +27,8 @@ public class MaterialesServlet extends HttpServlet {
         // Verificar si el usuario está autenticado
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("usuario") == null) {
-            response.sendRedirect(request.getContextPath() + "/login");
+            // Redirigir al servlet de login
+            response.sendRedirect(request.getContextPath() + "/login"); 
             return;
         }
         
@@ -51,7 +53,7 @@ public class MaterialesServlet extends HttpServlet {
         }
         
         // Reenviar a la vista
-        request.getRequestDispatcher("/VISTA/listado.jsp").forward(request, response);
+        request.getRequestDispatcher("/vista/listado.jsp").forward(request, response);
     }
 
     /**
