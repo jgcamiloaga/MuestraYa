@@ -6,14 +6,13 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>MuestraYa - Registro de Usuario</title>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-        <link rel="stylesheet" href="${pageContext.request.contextPath}/CSS/registerUser-style.css">
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/recursos/css/registerUser-style.css">
     </head>
     <body>
         <div class="page-container">
             <div class="form-card">
                 <div class="header">
                     <h1>Registro de Usuario</h1>
-                    <p class="subtitle">MuestraYa</p>
                 </div>
 
                 <% if (request.getAttribute("errorMessage") != null) {%>
@@ -90,7 +89,7 @@
                     </button>
 
                     <div class="login-link">
-                        ¿Ya tienes una cuenta? <a href="<%= request.getContextPath() %>/VISTA/login.jsp">Iniciar Sesión</a>
+                        ¿Ya tienes una cuenta? <a href="${pageContext.request.contextPath}/vista/login.jsp">Iniciar Sesión</a>
                     </div>
                 </form>
             </div>
