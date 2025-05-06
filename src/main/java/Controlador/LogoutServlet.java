@@ -1,4 +1,4 @@
-package Controlador;
+package controlador;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -45,8 +45,8 @@ public class LogoutServlet extends HttpServlet {
         response.setHeader("Pragma", "no-cache");
         response.setDateHeader("Expires", 0);
 
-        // Redireccionar a la página de login
-        response.sendRedirect(request.getContextPath() + "/VISTA/login.jsp");
+        // Redireccionar a la página de login usando el servlet de login
+        response.sendRedirect(request.getContextPath() + "/login");
     }
 
     @Override
