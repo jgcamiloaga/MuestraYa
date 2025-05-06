@@ -1,7 +1,8 @@
-package Controlador;
+package controlador;
 
-import Modelo.Categoria;
-import Modelo.Material;
+import servicios.ConexionDB;
+import modelo.Categoria;
+import modelo.Material;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.Connection;
