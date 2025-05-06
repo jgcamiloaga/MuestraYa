@@ -1,4 +1,4 @@
-package Controlador;
+package controlador;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -37,10 +37,10 @@ public class ResourceServlet extends HttpServlet {
         
         // Determine resource path based on URL pattern
         if (request.getServletPath().equals("/js")) {
-            resourcePath = "/resources/js" + pathInfo;
+            resourcePath = "/recursos/js" + pathInfo;
             contentType = "text/javascript";
         } else if (request.getServletPath().equals("/css")) {
-            resourcePath = "/CSS" + pathInfo;
+            resourcePath = "/recursos/css" + pathInfo;
             contentType = "text/css";
         } else {
             // Eliminar la barra inicial si existe
