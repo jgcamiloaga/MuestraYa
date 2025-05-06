@@ -5,17 +5,14 @@
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>MuestraYa - Iniciar Sesión</title>
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/recursos/css/login-style.css">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-        <link rel="stylesheet" href="${pageContext.request.contextPath}/CSS/login-style.css">
-        <style>
-        </style>
     </head>
     <body>
         <div class="page-container">
             <div class="form-card">
                 <div class="header">
                     <h1>Iniciar Sesión</h1>
-                    <p class="subtitle">MuestraYa</p>
                 </div>
 
                 <% if (request.getAttribute("errorMessage") != null) {%>
@@ -46,6 +43,7 @@
                         <div class="input-container">
                             <i class="fas fa-lock icon"></i>
                             <input type="password" id="password" name="password" placeholder="Ingrese su contraseña" required>
+                            <i class="fas fa-eye toggle-password" id="togglePassword"></i>
                         </div>
                     </div>
 
@@ -54,11 +52,27 @@
                         <i class="fas fa-sign-in-alt"></i>
                     </button>
 
-                    <div class="register-link" style="text-align: center; margin-top: 20px; font-size: 14px;">
-                        ¿No tienes una cuenta? <a href="<%= request.getContextPath() %>/VISTA/registerUser.jsp" style="color: #3a86ff; text-decoration: none; font-weight: 500;">Registrarse</a>
+                    <div class="register-link">
+                        ¿No tienes una cuenta? <a href="${pageContext.request.contextPath}/vista/registerUser.jsp">Registrarse</a>
                     </div>
                 </form>
             </div>
         </div>
+        <script>
+            // Mostrar/ocultar contraseña
+            document.addEventListener('DOMContentLoaded', function () {
+                const togglePassword = document.querySelector('.toggle-password');
+                const passwordInput = document.getElementById('password');
+
+                if (togglePassword && passwordInput) {
+                    togglePassword.addEventListener('click', function () {
+                        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                        passwordInput.setAttribute('type', type);
+                        this.classList.toggle('fa-eye');
+                        this.classList.toggle('fa-eye-slash');
+                    });
+                }
+            });
+        </script>
     </body>
 </html>
