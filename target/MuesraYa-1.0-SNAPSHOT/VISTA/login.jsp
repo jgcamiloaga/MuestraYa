@@ -29,7 +29,7 @@
                 </div>
                 <% }%>
 
-                <form action="<%= request.getContextPath() %>/login" method="post" class="form-container">
+                <form action="${pageContext.request.contextPath}/login" method="post" class="form-container">
                     <div class="form-group">
                         <label for="email">Correo Electrónico</label>
                         <div class="input-container">
