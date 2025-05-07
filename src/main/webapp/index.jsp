@@ -245,7 +245,7 @@
                         <ul class="list-unstyled">
                             <li><a href="${pageContext.request.contextPath}/"><i class="fas fa-chevron-right me-2"></i>Inicio</a></li>
                             <li><a href="${pageContext.request.contextPath}/products"><i class="fas fa-chevron-right me-2"></i>Productos</a></li>
-                            <li><a href="${pageContext.request.contextPath}/vista/registerMaterial.jsp"><i class="fas fa-chevron-right me-2"></i>Registrar Material</a></li>
+                            <li><a href="${pageContext.request.contextPath}/VISTA/registerMaterial.jsp"><i class="fas fa-chevron-right me-2"></i>Registrar Material</a></li>
                             <li><a href="${pageContext.request.contextPath}/materiales"><i class="fas fa-chevron-right me-2"></i>Administrar</a></li>
                             <li><a href="#"><i class="fas fa-chevron-right me-2"></i>Términos y Condiciones</a></li>
                             <li><a href="#"><i class="fas fa-chevron-right me-2"></i>Política de Privacidad</a></li>
