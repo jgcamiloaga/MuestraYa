@@ -1,5 +1,5 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
-<%@page import="modelo.Usuario"%>
+<%@page import="modelo.dto.Usuario"%>
 <%
     // Verificar si el usuario está autenticado
     HttpSession userSession = request.getSession(false);
