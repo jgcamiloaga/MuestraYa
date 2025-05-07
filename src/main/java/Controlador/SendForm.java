@@ -2,7 +2,6 @@ package controlador;
 
 import servicios.ConexionDB;
 import java.io.IOException;
-import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
@@ -13,7 +12,6 @@ import jakarta.servlet.http.Part;
 import java.io.File;
 import java.io.InputStream;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.sql.Connection;
@@ -152,13 +150,11 @@ public class SendForm extends HttpServlet {
                 // Registro exitoso
                 LOGGER.info("Material registrado exitosamente en la base de datos");
                 response.sendRedirect(request.getContextPath() + "/materiales?success=true");
-                return;
             } else {
                 // Error al insertar
                 LOGGER.warning("No se insertaron filas en la base de datos");
                 request.setAttribute("errorMessage", "Error al registrar el material");
                 request.getRequestDispatcher("/vista/registerMaterial.jsp").forward(request, response);
-                return;
             }
 
         } catch (SQLException e) {
@@ -182,11 +178,10 @@ public class SendForm extends HttpServlet {
             try {
                 // Usar getRequestDispatcher y forward para mantener los atributos
                 request.getRequestDispatcher("/vista/registerMaterial.jsp").forward(request, response);
-            } catch (Exception ex) {
+            } catch (ServletException | IOException ex) {
                 LOGGER.log(Level.SEVERE, "Error al redirigir después de una excepción SQL: {0}", ex.getMessage());
                 response.sendRedirect(request.getContextPath() + "/vista/registerMaterial.jsp?error=true");
             }
-            return;
         } finally {
             // Cerrar recursos
             try {
