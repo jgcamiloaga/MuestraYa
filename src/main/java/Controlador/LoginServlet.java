@@ -1,7 +1,7 @@
 package controlador;
 
 import servicios.ConexionDB;
-import modelo.Usuario;
+import modelo.dto.Usuario;
 import servicios.PasswordUtil;
 import java.io.IOException;
 import java.io.PrintWriter;
