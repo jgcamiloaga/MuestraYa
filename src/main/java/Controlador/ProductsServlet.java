@@ -1,8 +1,8 @@
 package controlador;
 
 import servicios.ConexionDB;
-import modelo.Categoria;
-import modelo.Material;
+import modelo.dto.Categoria;
+import modelo.dto.Material;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.Connection;
