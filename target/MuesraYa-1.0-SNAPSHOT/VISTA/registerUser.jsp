@@ -29,7 +29,7 @@
                 </div>
                 <% }%>
 
-                <form action="<%= request.getContextPath() %>/registerUser" method="POST" class="form-container" id="registerForm">
+                <form action="${pageContext.request.contextPath}/registerUser" method="POST" class="form-container" id="registerForm">
                     <div class="form-group">
                         <label for="nombre">Nombre Completo</label>
                         <div class="input-container">
