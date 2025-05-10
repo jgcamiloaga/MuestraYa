@@ -1,6 +1,6 @@
 package controlador;
 
-import servicios.ConexionDB;
+import modelo.dao.UsuarioDAO;
 import modelo.dto.Usuario;
 import servicios.PasswordUtil;
 import java.io.IOException;
@@ -11,10 +11,6 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 
 @WebServlet(name = "LoginServlet", urlPatterns = {"/login"})
 public class LoginServlet extends HttpServlet {
@@ -45,12 +41,10 @@ public class LoginServlet extends HttpServlet {
             // Redirigir al servlet de materiales en lugar de directamente al JSP
             response.sendRedirect(request.getContextPath() + "/materiales"); 
             return;
-        }
-
-        // Si no hay sesión, mostrar la página de login
+        }        // Si no hay sesión, mostrar la página de login
         request.getRequestDispatcher("/vista/login.jsp").forward(request, response);
     }
-
+    
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -64,38 +58,17 @@ public class LoginServlet extends HttpServlet {
             return;
         }
 
-        Connection conn = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-
+        // Crear instancia del DAO
+        UsuarioDAO usuarioDAO = new UsuarioDAO();
+        
         try {
-            conn = ConexionDB.getConnection();
-
-            if (conn == null) {
-                request.setAttribute("errorMessage", "Error de conexión a la base de datos");
-                request.getRequestDispatcher("/vista/login.jsp").forward(request, response);
-                return;
-            }
-
-            // Consulta SQL para obtener el usuario por email (ya no verificamos la contraseña en la consulta)
-            String sql = "SELECT * FROM usuario WHERE email = ?";
-            pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, email);
-
-            rs = pstmt.executeQuery();
-
-            if (rs.next()) {
-                // Obtener la contraseña hasheada de la base de datos
-                String hashedPasswordFromDB = rs.getString("password");
-
+            // Buscar usuario por email
+            Usuario usuario = usuarioDAO.buscarPorEmail(email);
+            
+            if (usuario != null) {
                 // Verificar si la contraseña ingresada coincide con el hash almacenado
-                if (PasswordUtil.checkPassword(password, hashedPasswordFromDB)) {
-                    // Contraseña correcta, crear objeto Usuario
-                    Usuario usuario = new Usuario();
-                    usuario.setIdUsuario(rs.getInt("idUsuario"));
-                    usuario.setNombre(rs.getString("nombre"));
-                    usuario.setEmail(rs.getString("email"));
-                    usuario.setRol(rs.getString("rol"));
+                if (PasswordUtil.checkPassword(password, usuario.getPassword())) {
+                    // Contraseña correcta, ya tenemos el objeto Usuario completo
 
                     // Crear sesión y guardar el usuario
                     HttpSession session = request.getSession();
@@ -105,8 +78,7 @@ public class LoginServlet extends HttpServlet {
 
                     // Redirigir al servlet de materiales después del login exitoso
                     response.sendRedirect(request.getContextPath() + "/materiales");
-                } else {
-                    // Contraseña incorrecta
+                } else {                    // Contraseña incorrecta
                     request.setAttribute("errorMessage", "Email o contraseña incorrectos");
                     request.getRequestDispatcher("/vista/login.jsp").forward(request, response);
                 }
@@ -116,23 +88,9 @@ public class LoginServlet extends HttpServlet {
                 request.getRequestDispatcher("/vista/login.jsp").forward(request, response);
             }
 
-        } catch (SQLException e) {
+        } catch (Exception e) {
             request.setAttribute("errorMessage", "Error: " + e.getMessage());
             request.getRequestDispatcher("/vista/login.jsp").forward(request, response);
-        } finally {
-            try {
-                if (rs != null) {
-                    rs.close();
-                }
-                if (pstmt != null) {
-                    pstmt.close();
-                }
-                if (conn != null) {
-                    conn.close();
-                }
-            } catch (SQLException e) {
-                System.err.println("Error al cerrar recursos: " + e.getMessage());
-            }
         }
     }
 
