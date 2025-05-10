@@ -1,6 +1,7 @@
 package controlador;
 
-import servicios.ConexionDB;
+import modelo.dao.UsuarioDAO;
+import modelo.dto.Usuario;
 import servicios.PasswordUtil;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -10,10 +11,6 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 
 @WebServlet(name = "RegisterServlet", urlPatterns = {"/registerUser"})
 public class RegisterServlet extends HttpServlet {
@@ -74,15 +71,13 @@ public class RegisterServlet extends HttpServlet {
             request.setAttribute("errorMessage", "Por favor, complete todos los campos");
             request.getRequestDispatcher("/vista/registerUser.jsp").forward(request, response);
             return;
-        }
-
-        // Validar que las contraseñas coincidan
+        }        // Validar que las contraseñas coincidan
         if (!password.equals(confirmPassword)) {
             request.setAttribute("errorMessage", "Las contraseñas no coinciden");
             request.getRequestDispatcher("/vista/registerUser.jsp").forward(request, response);
             return;
         }
-
+        
         // Validar fortaleza de la contraseña
         if (password.length() < 8 || !password.matches(".*[A-Z].*")
                 || !password.matches(".*[a-z].*") || !password.matches(".*[0-9].*")) {
@@ -92,53 +87,30 @@ public class RegisterServlet extends HttpServlet {
             return;
         }
 
-        Connection conn = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-
+        // Crear instancia del DAO de usuario
+        UsuarioDAO usuarioDAO = new UsuarioDAO();
+        
         try {
-            conn = ConexionDB.getConnection();
-
-            if (conn == null) {
-                request.setAttribute("errorMessage", "Error de conexión a la base de datos");
-                request.getRequestDispatcher("/vista/registerUser.jsp").forward(request, response);
-                return;
-            }
-
             // Verificar si el email ya está registrado
-            String checkSql = "SELECT COUNT(*) FROM usuario WHERE email = ?";
-            pstmt = conn.prepareStatement(checkSql);
-            pstmt.setString(1, email);
-            rs = pstmt.executeQuery();
-
-            if (rs.next() && rs.getInt(1) > 0) {
+            if (usuarioDAO.existeEmail(email)) {
                 request.setAttribute("errorMessage", "El correo electrónico ya está registrado");
                 request.getRequestDispatcher("/vista/registerUser.jsp").forward(request, response);
                 return;
             }
-
-            // Cerrar recursos antes de reutilizarlos
-            if (rs != null) {
-                rs.close();
-            }
-            if (pstmt != null) {
-                pstmt.close();
-            }
-
+            
             // Hashear la contraseña
             String hashedPassword = PasswordUtil.hashPassword(password);
-
-            // Insertar el nuevo usuario
-            String insertSql = "INSERT INTO usuario (nombre, email, password, rol) VALUES (?, ?, ?, ?)";
-            pstmt = conn.prepareStatement(insertSql);
-            pstmt.setString(1, nombre);
-            pstmt.setString(2, email);
-            pstmt.setString(3, hashedPassword);
-            pstmt.setString(4, rol);
-
-            int rowsAffected = pstmt.executeUpdate();
-
-            if (rowsAffected > 0) {
+            
+            // Crear objeto Usuario
+            Usuario nuevoUsuario = new Usuario();
+            nuevoUsuario.setNombre(nombre);
+            nuevoUsuario.setEmail(email);
+            nuevoUsuario.setPassword(hashedPassword);
+            nuevoUsuario.setRol(rol);
+              // Guardar el usuario
+            boolean registroExitoso = usuarioDAO.insertar(nuevoUsuario);
+            
+            if (registroExitoso) {
                 // Registro exitoso
                 request.setAttribute("successMessage", "Registro exitoso. Ahora puede iniciar sesión.");
                 request.getRequestDispatcher("/vista/login.jsp").forward(request, response);
@@ -147,24 +119,10 @@ public class RegisterServlet extends HttpServlet {
                 request.setAttribute("errorMessage", "Error al registrar el usuario. Inténtelo de nuevo.");
                 request.getRequestDispatcher("/vista/registerUser.jsp").forward(request, response);
             }
-
-        } catch (SQLException e) {
+            
+        } catch (ServletException | IOException e) {
             request.setAttribute("errorMessage", "Error: " + e.getMessage());
             request.getRequestDispatcher("/vista/registerUser.jsp").forward(request, response);
-        } finally {
-            try {
-                if (rs != null) {
-                    rs.close();
-                }
-                if (pstmt != null) {
-                    pstmt.close();
-                }
-                if (conn != null) {
-                    conn.close();
-                }
-            } catch (SQLException e) {
-                System.err.println("Error al cerrar recursos: " + e.getMessage());
-            }
         }
     }
 
