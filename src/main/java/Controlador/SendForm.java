@@ -1,6 +1,8 @@
 package controlador;
 
-import servicios.ConexionDB;
+import modelo.dao.MaterialDAO;
+import modelo.dto.Material;
+import java.math.BigDecimal;
 import java.io.IOException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.MultipartConfig;
@@ -14,8 +16,6 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.UUID;
 import java.util.logging.Level;
@@ -110,90 +110,30 @@ public class SendForm extends HttpServlet {
                 }
             } else {
                 LOGGER.info("No se recibió imagen o está vacía, usando imagen por defecto");
-            }
-        } catch (Exception e) {
+            }        } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Error al procesar la parte del archivo: {0}", e.getMessage());
             fileName = "default.jpg"; // Si hay excepción, usar imagen por defecto
-        }
-
-        Connection conn = null;
-        PreparedStatement pstmt = null;
-
-        try {
-            // Obtener conexión usando la clase ConexionDB
-            conn = ConexionDB.getConnection();
-
-            if (conn == null) {
-                LOGGER.severe("No se pudo establecer conexión con la base de datos");
-                request.setAttribute("errorMessage", "No se pudo establecer conexión con la base de datos");
-                request.getRequestDispatcher("/vista/registerMaterial.jsp").forward(request, response);
-                return;
-            }
-
-            // Preparar la consulta SQL para insertar el material con imagen
-            String sql = "INSERT INTO material (idMaterial, nombre, precio, idCategoria, imagen) VALUES (?, ?, ?, ?, ?)";
-            pstmt = conn.prepareStatement(sql);
-
-            // Establecer los parámetros
-            pstmt.setString(1, codigo);
-            pstmt.setString(2, nombre);
-            pstmt.setDouble(3, precio);
-            pstmt.setString(4, categoria);
-            pstmt.setString(5, fileName);
-
-            LOGGER.log(Level.INFO, "Ejecutando consulta SQL con imagen={0}", fileName);
-            
-            // Ejecutar la consulta
-            int filasAfectadas = pstmt.executeUpdate();
-
-            if (filasAfectadas > 0) {
-                // Registro exitoso
-                LOGGER.info("Material registrado exitosamente en la base de datos");
-                response.sendRedirect(request.getContextPath() + "/materiales?success=true");
-            } else {
-                // Error al insertar
-                LOGGER.warning("No se insertaron filas en la base de datos");
-                request.setAttribute("errorMessage", "Error al registrar el material");
-                request.getRequestDispatcher("/vista/registerMaterial.jsp").forward(request, response);
-            }
-
-        } catch (SQLException e) {
-            // Error de SQL
-            LOGGER.log(Level.SEVERE, "Error SQL: {0}", e.getMessage());
-            String errorMsg = "Error al registrar el material";
-
-            // Verificar si es un error de duplicado (código ya existe)
-            if (e.getMessage().toLowerCase().contains("duplicate") || e.getErrorCode() == 1062) {
-                errorMsg = "El código '" + codigo + "' ya existe en la base de datos.";
-                LOGGER.log(Level.INFO, "Intento de insertar código duplicado: {0}", codigo);
-            }
-
-            // Guardar los valores del formulario para poder repoblarlo
-            request.setAttribute("errorMessage", errorMsg);
-            request.setAttribute("prevCodigo", codigo);
-            request.setAttribute("prevNombre", nombre);
-            request.setAttribute("prevPrecio", precioStr);
-            request.setAttribute("prevCategoria", categoria);
-            
-            try {
-                // Usar getRequestDispatcher y forward para mantener los atributos
-                request.getRequestDispatcher("/vista/registerMaterial.jsp").forward(request, response);
-            } catch (ServletException | IOException ex) {
-                LOGGER.log(Level.SEVERE, "Error al redirigir después de una excepción SQL: {0}", ex.getMessage());
-                response.sendRedirect(request.getContextPath() + "/vista/registerMaterial.jsp?error=true");
-            }
-        } finally {
-            // Cerrar recursos
-            try {
-                if (pstmt != null) {
-                    pstmt.close();
-                }
-                if (conn != null) {
-                    conn.close();
-                }
-            } catch (SQLException e) {
-                LOGGER.log(Level.WARNING, "Error al cerrar recursos: {0}", e.getMessage());
-            }
+        }        
+        
+        // Crear instancia del DAO
+        MaterialDAO materialDAO = new MaterialDAO();
+        // Crear objeto Material con los datos del formulario
+        Material material = new Material(codigo, nombre, new BigDecimal(precio));
+        material.setIdCategoria(categoria);
+        material.setImagen(fileName);
+        LOGGER.log(Level.INFO, "Creando material con codigo={0}, nombre={1}, categoria={2}, imagen={3}",
+                new Object[]{codigo, nombre, categoria, fileName});
+        // Insertar el material usando el DAO
+        boolean insertado = materialDAO.insertar(material);
+        if (insertado) {
+            // Registro exitoso
+            LOGGER.info("Material registrado exitosamente en la base de datos");
+            response.sendRedirect(request.getContextPath() + "/materiales?success=true");
+        } else {
+            // Error al insertar
+            LOGGER.warning("No se insertaron filas en la base de datos");
+            request.setAttribute("errorMessage", "Error al registrar el material");
+            request.getRequestDispatcher("/vista/registerMaterial.jsp").forward(request, response);
         }
     }
 
