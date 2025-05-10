@@ -1,6 +1,6 @@
 package controlador;
 
-import servicios.ConexionDB;
+import modelo.dao.MaterialDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -8,9 +8,6 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 
 @WebServlet(name = "DeleteMaterial", urlPatterns = {"/DeleteMaterial"})
 public class DeleteMaterial extends HttpServlet {
@@ -30,9 +27,7 @@ public class DeleteMaterial extends HttpServlet {
             out.println("</body>");
             out.println("</html>");
         }
-    }
-
-    @Override
+    }    @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         // Obtener el ID del material a eliminar
@@ -43,54 +38,18 @@ public class DeleteMaterial extends HttpServlet {
             response.sendRedirect(request.getContextPath() + "/materiales?error=true");
             return;
         }
-
-        Connection conn = null;
-        PreparedStatement pstmt = null;
-
-        try {
-            // Obtener conexión usando la clase ConexionDB
-            conn = ConexionDB.getConnection();
-
-            if (conn == null) {
-                // Si no se puede establecer la conexión, redirigir con un mensaje de error
-                response.sendRedirect(request.getContextPath() + "/materiales?error=true");
-                return;
-            }
-
-            // Preparar la consulta SQL para eliminar el material
-            String sql = "DELETE FROM material WHERE idMaterial = ?";
-            pstmt = conn.prepareStatement(sql);
-
-            // Establecer el parámetro
-            pstmt.setString(1, idMaterial);
-
-            // Ejecutar la consulta
-            int filasAfectadas = pstmt.executeUpdate();
-
-            if (filasAfectadas > 0) {
-                // Eliminación exitosa - redireccionar al servlet MaterialesServlet en lugar de directamente a la vista
-                response.sendRedirect(request.getContextPath() + "/materiales?delete=true");
-            } else {
-                // No se encontró el material o no se pudo eliminar
-                response.sendRedirect(request.getContextPath() + "/materiales?error=true");
-            }
-
-        } catch (SQLException e) {
-            // Error de SQL
-            System.err.println("Error al eliminar material: " + e.getMessage());
+        
+        // Crear instancia del DAO
+        MaterialDAO materialDAO = new MaterialDAO();
+        
+        // Intentar eliminar el material usando el DAO
+        boolean eliminado = materialDAO.eliminar(idMaterial);
+          if (eliminado) {
+            // Eliminación exitosa - redireccionar con mensaje de éxito
+            response.sendRedirect(request.getContextPath() + "/materiales?delete=true");
+        } else {
+            // No se encontró el material o no se pudo eliminar
             response.sendRedirect(request.getContextPath() + "/materiales?error=true");
-        } finally {
-            // Cerrar recursos
-            try {
-                if (pstmt != null) {
-                    pstmt.close();
-                }
-                if (conn != null) {
-                    conn.close();
-                }
-            } catch (SQLException e) {
-                System.err.println("Error al cerrar recursos: " + e.getMessage());
-            }
         }
     }
 
