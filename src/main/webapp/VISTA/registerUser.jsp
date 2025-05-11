@@ -69,19 +69,7 @@
                             <i class="fas fa-eye toggle-password" id="toggleConfirmPassword"></i>
                         </div>
                         <div class="password-match" id="passwordMatch"></div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="rol">Rol</label>
-                        <div class="input-container">
-                            <i class="fas fa-user-tag icon"></i>
-                            <select id="rol" name="rol" required>
-                                <option value="" disabled selected>Seleccione un rol</option>
-                                <option value="admin">Administrador</option>
-                                <option value="user">Usuario</option>
-                            </select>
-                        </div>
-                    </div>
+                    </div>                    <!-- El rol usuario se asigna automáticamente -->
 
                     <button type="submit" class="submit-btn" id="submitBtn">
                         <span>REGISTRARSE</span>
