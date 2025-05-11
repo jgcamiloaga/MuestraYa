@@ -1,4 +1,5 @@
 controlador\ProductsServlet.class
+controlador\RegisterAdminServlet.class
 controlador\ImageServlet.class
 controlador\RegisterServlet.class
 servicios\PasswordUtil.class
