@@ -53,13 +53,14 @@ public class RegisterServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        // Obtener parámetros del formulario
+            throws ServletException, IOException {        // Obtener parámetros del formulario
         String nombre = request.getParameter("nombre");
         String email = request.getParameter("email");
         String password = request.getParameter("password");
         String confirmPassword = request.getParameter("confirmPassword");
-        String rol = request.getParameter("rol");
+        
+        // Asignar rol "usuario" por defecto para registros desde la tienda
+        String rol = "usuario";
 
         // Validar que los campos no estén vacíos
         if (nombre == null || nombre.trim().isEmpty()
