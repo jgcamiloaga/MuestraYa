@@ -12,7 +12,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
-@WebFilter(filterName = "AuthFilter", urlPatterns = {"/vista/registerMaterial.jsp", "/vista/listado.jsp", "/SendForm", "/DeleteMaterial"})
+@WebFilter(filterName = "AuthFilter", urlPatterns = {"/vista/registerMaterial.jsp", "/vista/listado.jsp", "/vista/registerAdmin.jsp", "/SendForm", "/DeleteMaterial", "/registerAdmin"})
 public class AuthFilter implements Filter {
     
     @Override
