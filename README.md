@@ -59,7 +59,7 @@ El sistema cuenta con diferentes roles de usuario:
 
 ## 🖼️ Capturas de pantalla
 
-(Aquí se podrían incluir capturas de pantalla de la aplicación)
+
 
 ## 👨‍💻 Desarrollador
 
