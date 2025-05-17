@@ -15,9 +15,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
 @WebServlet(name = "ProductsServlet", urlPatterns = {"/products", "/"})
-public class ProductsServlet extends HttpServlet {
-
-    @Override
+public class ProductsServlet extends HttpServlet {    @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
@@ -26,24 +24,25 @@ public class ProductsServlet extends HttpServlet {
         
         // Verificar si ya procesamos esta solicitud para evitar bucles (usando atributos de sesión)
         HttpSession session = request.getSession();
-        
-        // Si venimos de listado.jsp, limpiar cualquier caché previa para forzar recarga
-        if ("listado".equals(fromPage)) {
+          // Si venimos de listado.jsp o registerMaterial.jsp, limpiar cualquier caché previa para forzar recarga
+        if (fromPage != null && ("listado".equals(fromPage) || "register".equals(fromPage))) {
             session.removeAttribute("lastProductRequest");
             session.removeAttribute("cachedMaterials");
             // Configurar cabeceras para evitar caché en el navegador
             response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
             response.setHeader("Pragma", "no-cache");
             response.setDateHeader("Expires", 0);
+            
+            // Log para depuración
+            System.out.println("Limpiando caché para fromPage: " + fromPage);
         }
         
         String requestURI = request.getRequestURI();
         String queryString = request.getQueryString();
-        String fullPath = requestURI + (queryString != null ? "?" + queryString : "");
-        
-        // Verificar si hay atributos en la solicitud para evitar bucles de redirección
+        String fullPath = requestURI + (queryString != null ? "?" + queryString : "");        // Verificar si hay atributos en la solicitud para evitar bucles de redirección
         Object prevRequestAttr = session.getAttribute("lastProductRequest");
-        if (prevRequestAttr != null && prevRequestAttr.equals(fullPath) && !"listado".equals(fromPage)) {
+        if (prevRequestAttr != null && prevRequestAttr.equals(fullPath) && 
+            !(fromPage != null && ("listado".equals(fromPage) || "register".equals(fromPage)))) {
             // Estamos en un bucle de redirección, establecer atributos de seguridad
             if (request.getAttribute("materiales") == null) {
                 request.setAttribute("materiales", new ArrayList<Material>());
@@ -53,7 +52,7 @@ public class ProductsServlet extends HttpServlet {
             }
             
             // Log para depuración
-            System.out.println("Detectado posible bucle de redirección en: " + fullPath);
+            System.out.println("Detectado posible bucle de redirección en: " + fullPath + " (fromPage: " + fromPage + ")");
             
             request.getRequestDispatcher("/index.jsp").forward(request, response);
             return;
