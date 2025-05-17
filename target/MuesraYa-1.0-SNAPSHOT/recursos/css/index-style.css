@@ -1,5 +1,16 @@
 @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap");
 
+/*
+ * ARCHIVO CSS CONSOLIDADO
+ * Este archivo contiene estilos de:
+ * - index-style.css (original)
+ * - navbar-custom.css
+ * - icon-alignment-fixes.css
+ * - hamburger-menu.css
+ * - consolidated-cart-badge.css
+ */
+
+/* ========= VARIABLES Y ESTILOS BASE ========= */
 :root {
   --primary-color: #3a86ff;
   --primary-light: #4895ef;
@@ -15,7 +26,7 @@
   --border-radius: 12px;
   --box-shadow: 0 10px 30px rgba(58, 134, 255, 0.1);
   --transition: all 0.3s ease;
-  
+
   /* Colores de categorías */
   --cat001-color: #3a86ff; /* Herramienta */
   --cat002-color: #ff006e; /* Ropa */
@@ -33,15 +44,24 @@
   box-sizing: border-box;
 }
 
+html {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
 body {
   color: var(--text-color);
   background-color: var(--bg-color);
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  margin: 0 !important; /* Asegurarnos de que no hay margen */
+  padding: 0 !important; /* Asegurarnos de que no hay padding */
+  overflow-x: hidden;
 }
 
-/* Estilos para el NavBar */
+/* ========= NAVBAR Y NAVEGACIÓN ========= */
 .navbar {
   background: linear-gradient(
     135deg,
@@ -49,46 +69,45 @@ body {
     var(--primary-dark) 100%
   ) !important;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  padding: 12px 0;
-  position: sticky;
-  top: 0;
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  position: sticky !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  width: 100% !important;
+  padding: 12px 0 !important;
+  min-height: 70px !important;
   z-index: 1000;
+  display: flex;
+  align-items: center;
 }
 
+/* Estilo del logo */
 .navbar-brand {
   font-weight: 700;
   font-size: 1.5rem;
   letter-spacing: 0.5px;
   position: relative;
-  padding-left: 40px;
+  transition: all 0.3s ease;
+  padding-left: 5px;
+  margin-right: 15px;
 }
 
-.navbar-brand::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 30px;
-  height: 30px;
-  background-color: var(--accent-color);
-  border-radius: 8px;
-  z-index: -1;
+.navbar-brand:hover {
+  transform: translateY(-2px);
+  text-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
-.navbar-brand::after {
-  content: "";
-  position: absolute;
-  left: 6px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 30px;
-  height: 30px;
-  background-color: rgba(255, 255, 255, 0.3);
-  border-radius: 8px;
-  z-index: -2;
+.navbar-brand i {
+  transition: transform 0.3s ease;
 }
 
+.navbar-brand:hover i {
+  transform: rotate(-10deg);
+}
+
+/* Elementos de navegación */
 .nav-item {
   position: relative;
   margin: 0 5px;
@@ -106,39 +125,769 @@ body {
   color: #fff !important;
 }
 
-.nav-link::before {
-  content: "";
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 0;
-  background-color: rgba(255, 255, 255, 0.1);
-  transition: height 0.3s ease;
-  z-index: -1;
-  border-radius: 6px;
-}
-
-.nav-link:hover::before {
-  height: 100%;
-}
-
 .nav-link.active {
   position: relative;
   color: #fff !important;
   font-weight: 600;
 }
 
-.nav-link.active::after {
-  content: "";
-  position: absolute;
+/* Iconos del Navbar */
+.navbar .fas,
+.navbar .far {
+  transition: var(--transition);
+  font-size: 1.1rem;
+}
+
+.navbar .nav-link:hover .fas,
+.navbar .nav-link:hover .far {
+  transform: translateY(-2px);
+}
+
+/* Ajustar tamaño del dropdown de categorías */
+.navbar .nav-item.dropdown {
+  max-width: 160px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  margin-left: 5px;
+  padding-right: 5px;
+}
+
+/* Compactar el espacio de elementos a la izquierda */
+.navbar-nav.me-auto {
+  flex-shrink: 1;
+  margin-right: 0 !important;
+  display: flex;
+  align-items: center;
+  padding: 0;
+}
+
+/* ========= BARRA DE BÚSQUEDA ========= */
+.search-bar-container {
+  min-width: 150px;
+  padding: 0;
+  margin: 0;
+  flex: 1;
+  width: 100%;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  height: 100%;
+  justify-content: center;
+}
+
+@media (min-width: 992px) {
+  .search-bar-container {
+    min-width: 280px;
+    flex-grow: 2;
+    margin-right: 25px;
+    margin-left: 25px;
+    max-width: 55%;
+    padding: 0;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Cuando existe el botón de administrar, reducir el ancho de la barra de búsqueda */
+  .has-admin-button .search-bar-container {
+    min-width: 240px;
+    max-width: 50%;
+  }
+
+  /* Limitar el ancho del grupo de entrada para centrar mejor */
+  .search-bar-container .input-group {
+    max-width: 90%;
+  }
+}
+
+/* Estilos para el input de búsqueda */
+.search-bar-container .form-control {
+  border-radius: 24px 0 0 24px;
+  border: none;
+  background-color: rgba(255, 255, 255, 0.92);
+  height: 46px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
+  font-size: 0.95rem;
+  padding-left: 24px;
+  transition: all 0.3s ease;
+  line-height: 46px;
+}
+
+.search-bar-container .form-control:focus {
+  background-color: rgba(255, 255, 255, 0.98);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
+}
+
+.search-bar-container .input-group {
+  width: 100%;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.08);
+  border-radius: 24px;
+  margin: 0;
+  height: 46px;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  margin: 0 auto;
+}
+
+/* Asegura que el grupo de append se comporte correctamente */
+.search-bar-container .input-group-append {
+  display: flex;
+  height: 100%;
+}
+
+/* Botón de búsqueda */
+.search-bar-container .btn {
+  border-radius: 0 24px 24px 0;
+  padding: 0.375rem 0.85rem;
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+  transition: var(--transition);
+  height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 0;
+}
+
+.search-bar-container .btn:hover {
+  background-color: var(--primary-dark);
+  border-color: var(--primary-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.search-bar-container .btn i {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.search-bar-container form,
+.search-bar-container .d-flex,
+.search-bar-container .input-group {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+}
+
+/* ========= ICONOS Y ALINEACIÓN ========= */
+/* Contenedor principal de los iconos */
+.navbar .nav-icons {
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: flex-end;
+  align-items: center;
+  margin-left: auto;
+  padding: 0;
+  height: 100%;
+}
+
+/* Ajustes para los iconos individuales */
+.navbar .nav-icons .nav-item {
+  margin: 0 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+}
+
+/* Corregir alineación vertical de los íconos */
+.navbar .nav-icons .nav-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  width: 40px;
+  padding: 0;
+  margin: 0;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.15);
+  transition: all 0.25s ease;
+  position: relative;
+}
+
+/* Asegurar que el contenido de los iconos esté centrado */
+.navbar .nav-icons .nav-link .icon-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+/* Alinear el botón de inicio de sesión */
+.navbar .nav-icons .nav-item:last-child {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+}
+
+/* Ajustes para el botón de inicio de sesión */
+.navbar .nav-icons .btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 36px;
+  padding: 0 12px;
+}
+
+/* Estilos específicos para iconos de favoritos y carrito */
+.navbar .nav-item a[title="Favoritos"],
+.navbar .nav-item a[title="Carrito de compras"] {
+  background-color: rgba(255, 255, 255, 0.15);
+  transition: all 0.25s ease;
+  border-radius: 50%;
+  position: relative;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+}
+
+.navbar .nav-item a[title="Favoritos"]:hover,
+.navbar .nav-item a[title="Carrito de compras"]:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+}
+
+/* Ajuste para el dropdown del usuario cuando está logueado */
+.navbar .nav-icons .dropdown-toggle {
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 12px;
+}
+
+/* Hover para el botón de dropdown */
+.navbar .nav-icons .dropdown-toggle:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Botón de inicio de sesión */
+.navbar .nav-icons .btn-primary {
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+/* Hover para el botón de inicio de sesión */
+.navbar .nav-icons .btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Ajuste específico para el dropdown de usuario */
+.navbar .nav-icons .dropdown {
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+
+/* Alineación vertical para el navbar completo */
+.navbar > .container {
+  min-height: 60px;
+  display: flex;
+  align-items: center;
+}
+
+/* ========= BADGE DEL CARRITO ========= */
+/* Reset any conflicting styles that might affect badge visibility */
+.navbar .nav-link .fa-shopping-cart + span:not(.cart-badge-visible) {
+  display: none !important;
+}
+
+/* Single source of truth for cart badge - highly specific selector */
+.fa-shopping-cart + span.cart-badge-visible,
+.navbar
+  .nav-icons
+  .nav-item
+  .nav-link
+  .fa-shopping-cart
+  + span.cart-badge-visible {
+  /* Position */
+  position: absolute !important;
+  top: -6px !important;
+  right: -6px !important;
+  z-index: 99999 !important; /* Aumentado para garantizar visibilidad */
+
+  /* Size and shape */
+  min-width: 18px !important;
+  height: 18px !important;
+  border-radius: 50% !important;
+
+  /* Visual style */
+  background-color: #ff3b30 !important;
+  color: white !important;
+  font-size: 12px !important;
+  font-weight: bold !important;
+  box-shadow: 0 0 0 2px white !important;
+
+  /* Layout */
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+
+  /* Visibility */
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: none !important;
+}
+
+/* Ensure parent element has relative positioning */
+.navbar .nav-icons .nav-item .nav-link,
+.nav-link:has(.fa-shopping-cart) {
+  position: relative !important;
+}
+
+/* Add subtle hover animation */
+.navbar
+  .nav-icons
+  .nav-item
+  .nav-link:hover
+  .fa-shopping-cart
+  + span.cart-badge-visible,
+.navbar
+  .nav-icons
+  .nav-item
+  .nav-link:hover
+  .fa-shopping-cart
+  + span.cart-badge-visible,
+.nav-link:hover .fa-shopping-cart + span.cart-badge-visible {
+  transform: scale(1.2) !important;
+  transition: transform 0.2s ease-in-out !important;
+}
+
+/* Icon pulse animation when adding to cart */
+@keyframes iconPulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.icon-pulse {
+  animation: iconPulse 0.5s ease-in-out;
+}
+
+/* ========= MENÚ HAMBURGUESA ========= */
+/* Contenedor del botón hamburguesa */
+.hamburger-button {
+  border: none;
+  background: transparent;
+  padding: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  position: relative;
+  z-index: 1100;
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+}
+
+.hamburger-button:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.25);
+}
+
+.hamburger-button:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Icono de hamburguesa */
+.hamburger-icon {
+  width: 24px;
+  height: 18px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+/* Líneas del icono hamburguesa */
+.hamburger-icon span {
+  display: block;
+  height: 2px;
+  width: 100%;
+  background-color: white;
+  border-radius: 4px;
+  transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
+  position: relative;
+}
+
+/* Animación cuando el menú está abierto */
+.navbar-toggler[aria-expanded="true"] .hamburger-icon span:nth-child(1) {
+  transform: translateY(8px) rotate(45deg);
+}
+
+.navbar-toggler[aria-expanded="true"] .hamburger-icon span:nth-child(2) {
+  opacity: 0;
+  transform: translateX(-10px);
+}
+
+.navbar-toggler[aria-expanded="true"] .hamburger-icon span:nth-child(3) {
+  transform: translateY(-8px) rotate(-45deg);
+}
+
+/* Efecto hover en el botón hamburguesa */
+.hamburger-button:hover .hamburger-icon span {
+  background-color: rgba(255, 255, 255, 1);
+}
+
+/* Overlay para cuando el menú está abierto */
+.menu-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
   bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 30px;
-  height: 3px;
-  background-color: var(--accent-color);
-  border-radius: 3px;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1040;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.menu-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Estilos para el menú móvil */
+.mobile-menu-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 15px 20px;
+  background: linear-gradient(
+    135deg,
+    var(--primary-color) 0%,
+    var(--primary-dark) 100%
+  );
+  position: relative;
+  z-index: 1050;
+}
+
+.mobile-menu-header .navbar-brand {
+  margin: 0;
+  color: white;
+}
+
+.mobile-menu-close {
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 1.5rem;
+  cursor: pointer;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.mobile-menu-close:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Contenido del menú móvil */
+.mobile-menu-content {
+  padding: 20px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.mobile-menu-section {
+  margin-bottom: 25px;
+}
+
+.mobile-menu-section-title {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 12px;
+}
+
+/* Buscador móvil */
+.mobile-search .form-control {
+  background-color: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: white;
+  border-radius: 24px 0 0 24px;
+}
+
+.mobile-search .form-control::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.mobile-search .btn {
+  background-color: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: none;
+  border-radius: 0 24px 24px 0;
+}
+
+/* Iconos de acción rápida para móvil */
+.mobile-action-icons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin-top: 10px;
+}
+
+.mobile-action-icon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+  height: 80px;
+  border-radius: 15px;
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.mobile-action-icon i {
+  font-size: 1.8rem;
+  margin-bottom: 5px;
+}
+
+.mobile-action-icon span {
+  font-size: 0.8rem;
+}
+
+.mobile-action-icon:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-3px);
+}
+
+/* ========= MEDIA QUERIES ========= */
+@media (min-width: 992px) {
+  .navbar-nav,
+  .search-bar-container,
+  .nav-icons {
+    height: 60px;
+    display: flex;
+    align-items: center;
+  }
+
+  .navbar .nav-icons .nav-item {
+    height: 40px;
+  }
+}
+
+@media (max-width: 991.98px) {
+  /* Contenedor principal del menú desplegable */
+  .navbar-collapse {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 300px;
+    height: 100vh !important;
+    padding: 0;
+    background: linear-gradient(
+      135deg,
+      var(--primary-color) 0%,
+      var(--primary-dark) 100%
+    );
+    z-index: 1050;
+    overflow-y: auto;
+    overflow-x: hidden;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease-in-out;
+    box-shadow: 5px 0 25px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .navbar-collapse.show {
+    transform: translateX(0);
+  }
+  /* Ajustes para el header dentro del menú móvil */
+  .navbar-collapse .mobile-menu-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .mobile-menu-header .navbar-brand {
+    margin: 0;
+    color: white;
+  }
+
+  .mobile-menu-close {
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+  }
+
+  .mobile-menu-close:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+
+  /* Contenido del menú móvil */
+  .mobile-menu-content {
+    padding: 20px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .mobile-menu-section {
+    margin-bottom: 25px;
+  }
+
+  .mobile-menu-section-title {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+  }
+
+  /* Buscador móvil */
+  .mobile-search .form-control {
+    background-color: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: white;
+    border-radius: 24px 0 0 24px;
+  }
+
+  .mobile-search .form-control::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+  }
+
+  .mobile-search .btn {
+    background-color: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: none;
+    border-radius: 0 24px 24px 0;
+  }
+
+  /* Iconos de acción rápida para móvil */
+  .mobile-action-icons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-top: 10px;
+  }
+
+  .mobile-action-icon {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 80px;
+    height: 80px;
+    border-radius: 15px;
+    background-color: rgba(255, 255, 255, 0.1);
+    color: white;
+    text-decoration: none;
+    transition: all 0.3s ease;
+  }
+
+  .mobile-action-icon i {
+    font-size: 1.8rem;
+    margin-bottom: 5px;
+  }
+
+  .mobile-action-icon span {
+    font-size: 0.8rem;
+  }
+
+  .mobile-action-icon:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-3px);
+  }
+
+  /* Estilos para el menú móvil cuando está abierto */
+  body.menu-open {
+    overflow: hidden;
+  }
+
+  /* Estilo para los elementos de navegación en el menú móvil */
+  @media (max-width: 991.98px) {
+    .navbar-nav .nav-item {
+      margin: 5px 0;
+    }
+
+    .navbar-nav .nav-link {
+      color: white !important;
+      padding: 10px 15px;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+    }
+
+    .navbar-nav .nav-link:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+      transform: translateX(5px);
+    }
+
+    .navbar-nav .nav-link.active {
+      background-color: rgba(255, 255, 255, 0.15);
+      font-weight: 600;
+    }
+
+    /* Ajustes para el dropdown en móvil */
+    .navbar-nav .dropdown-menu {
+      background-color: rgba(0, 0, 0, 0.2);
+      border: none;
+      border-radius: 8px;
+      margin-top: 5px;
+      padding: 10px;
+      box-shadow: none;
+    }
+
+    .navbar-nav .dropdown-item {
+      color: white;
+      padding: 8px 15px;
+      border-radius: 6px;
+      transition: all 0.3s ease;
+    }
+
+    .navbar-nav .dropdown-item:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+      color: white;
+      transform: translateX(5px);
+    }
+  }
 }
 
 .dropdown-menu {
@@ -266,6 +1015,33 @@ body {
 .btn-outline-secondary:hover {
   background-color: var(--text-color);
   transform: translateY(-2px);
+}
+
+/* Estilos para el botón de añadir al carrito */
+.btn-add-to-cart {
+  background: linear-gradient(135deg, #3a86ff 0%, #4a9eff 100%);
+  border: none;
+  box-shadow: 0 3px 10px rgba(58, 134, 255, 0.25);
+  transition: all 0.3s ease;
+  font-weight: 500;
+  font-size: 0.85rem;
+  margin-top: 5px;
+}
+
+.btn-add-to-cart:hover {
+  background: linear-gradient(135deg, #3575e6 0%, #3a86ff 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(58, 134, 255, 0.35);
+}
+
+.btn-add-to-cart:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(58, 134, 255, 0.2);
+}
+
+.btn-add-to-cart .fas {
+  margin-right: 5px;
+  font-size: 0.9em;
 }
 
 /* Seccion Hero */
@@ -775,15 +1551,15 @@ body {
   .hero-section {
     padding: 80px 0;
   }
-  
+
   .hero-section h1 {
     font-size: 1.8rem;
   }
-  
+
   .features-section {
     padding: 50px 0;
   }
-  
+
   .newsletter-card {
     padding: 20px;
   }
