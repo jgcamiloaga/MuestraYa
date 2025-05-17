@@ -143,16 +143,20 @@
         <div class="header">
             <h1>Sistema de Gestión de Materiales</h1>
             <div class="user-info">
-                <span class="welcome-text">Bienvenido, ${sessionScope.usuario.nombre}</span>
-                <div class="nav-links">
+                <span class="welcome-text">Bienvenido, ${sessionScope.usuario.nombre}</span>                <div class="nav-links">
                     <a href="${pageContext.request.contextPath}/products?from=listado" class="nav-link home-link">
                         <i class="fas fa-home"></i> Página Principal
-                    </a>                    <a href="${pageContext.request.contextPath}/vista/registerMaterial.jsp" class="nav-link">
+                    </a>
+                    
+                    <% if ("admin".equals(((modelo.dto.Usuario)session.getAttribute("usuario")).getRol())) { %>
+                    <a href="${pageContext.request.contextPath}/vista/registerMaterial.jsp" class="nav-link">
                         <i class="fas fa-plus-circle"></i> Nuevo Material
                     </a>
                     <a href="${pageContext.request.contextPath}/registerAdmin" class="nav-link">
                         <i class="fas fa-user-shield"></i> Registrar Admin
                     </a>
+                    <% } %>
+                    
                     <a href="${pageContext.request.contextPath}/logout" class="nav-link logout-link">
                         <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
                     </a>
