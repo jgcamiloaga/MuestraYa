@@ -30,18 +30,24 @@ public class LoginServlet extends HttpServlet {
             out.println("</body>");
             out.println("</html>");
         }
-    }
-
-    @Override
+    }    @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        // Si ya hay una sesión activa, redirigir al listado
+        // Si ya hay una sesión activa, redirigir según el rol del usuario
         HttpSession session = request.getSession(false);
         if (session != null && session.getAttribute("usuario") != null) {
-            // Redirigir al servlet de materiales en lugar de directamente al JSP
-            response.sendRedirect(request.getContextPath() + "/materiales"); 
+            modelo.dto.Usuario usuario = (modelo.dto.Usuario) session.getAttribute("usuario");
+            if ("admin".equals(usuario.getRol())) {
+                // Si es administrador, redirigir a la página de materiales
+                response.sendRedirect(request.getContextPath() + "/materiales");
+            } else {
+                // Si es usuario normal, redirigir a la tienda
+                response.sendRedirect(request.getContextPath() + "/products");
+            }
             return;
-        }        // Si no hay sesión, mostrar la página de login
+        }
+        
+        // Si no hay sesión, mostrar la página de login
         request.getRequestDispatcher("/vista/login.jsp").forward(request, response);
     }
     
@@ -68,16 +74,20 @@ public class LoginServlet extends HttpServlet {
             if (usuario != null) {
                 // Verificar si la contraseña ingresada coincide con el hash almacenado
                 if (PasswordUtil.checkPassword(password, usuario.getPassword())) {
-                    // Contraseña correcta, ya tenemos el objeto Usuario completo
-
-                    // Crear sesión y guardar el usuario
+                    // Contraseña correcta, ya tenemos el objeto Usuario completo                    // Crear sesión y guardar el usuario
                     HttpSession session = request.getSession();
                     session.setAttribute("usuario", usuario);
                     session.setAttribute("isLoggedIn", true);
                     session.setMaxInactiveInterval(30 * 60); // 30 minutos
 
-                    // Redirigir al servlet de materiales después del login exitoso
-                    response.sendRedirect(request.getContextPath() + "/materiales");
+                    // Redirigir según el rol del usuario
+                    if ("admin".equals(usuario.getRol())) {
+                        // Si es administrador, redirigir a la página de materiales (listado)
+                        response.sendRedirect(request.getContextPath() + "/materiales");
+                    } else {
+                        // Si es usuario normal, redirigir a la tienda (products)
+                        response.sendRedirect(request.getContextPath() + "/products");
+                    }
                 } else {                    // Contraseña incorrecta
                     request.setAttribute("errorMessage", "Email o contraseña incorrectos");
                     request.getRequestDispatcher("/vista/login.jsp").forward(request, response);
