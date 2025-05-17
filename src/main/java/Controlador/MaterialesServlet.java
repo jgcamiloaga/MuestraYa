@@ -30,6 +30,14 @@ public class MaterialesServlet extends HttpServlet {
             return;
         }
         
+        // Verificar si el usuario es administrador
+        modelo.dto.Usuario usuario = (modelo.dto.Usuario) session.getAttribute("usuario");
+        if (!"admin".equals(usuario.getRol())) {
+            // No es administrador, redirigir a la tienda
+            response.sendRedirect(request.getContextPath() + "/products");
+            return;
+        }
+        
         // Cargar los materiales desde la base de datos utilizando el DAO
         List<Material> materiales = materialDAO.listarTodos();
         request.setAttribute("materiales", materiales);
@@ -38,6 +46,7 @@ public class MaterialesServlet extends HttpServlet {
         String deleteParam = request.getParameter("delete");
         String errorParam = request.getParameter("error");
         String successParam = request.getParameter("success");
+        String fromParam = request.getParameter("from");
         
         // Mantener estos parámetros para la vista
         if (deleteParam != null) {
@@ -45,8 +54,12 @@ public class MaterialesServlet extends HttpServlet {
         }
         if (errorParam != null) {
             request.setAttribute("error", errorParam);
-        }        if (successParam != null) {
+        }
+        if (successParam != null) {
             request.setAttribute("success", successParam);
+        }
+        if (fromParam != null) {
+            request.setAttribute("fromPage", fromParam);
         }
         
         // Reenviar a la vista
