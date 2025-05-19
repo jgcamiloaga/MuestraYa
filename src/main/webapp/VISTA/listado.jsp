@@ -288,9 +288,22 @@
                     <div class="no-data">
                         <i class="fas fa-database"></i>
                         <p>No hay materiales disponibles.</p>
-                    </div>
-                </c:otherwise>
-            </c:choose>
+                    </div>                </c:otherwise>
+            </c:choose>        </div>
+        
+        <!-- Botón flotante del carrito -->
+        <div class="cart-float">
+            <a href="#" title="Carrito de compras" aria-label="Ver carrito de compras" style="position:relative;">
+                <i class="fas fa-shopping-cart"></i>
+                <span class="cart-badge-visible" style="position:absolute; top:-6px; right:-6px; background-color:#ff3b30; color:white; border-radius:50%; min-width:18px; height:18px; font-size:12px; font-weight:bold; display:flex; justify-content:center; align-items:center; box-shadow:0 0 0 2px white; z-index:9999;">0</span>
+            </a>
         </div>
+        
+        <!-- Contenedor para notificaciones toast -->
+        <div class="toast-container position-fixed bottom-0 end-0 p-3"></div>
+        
+        <!-- Scripts -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="${pageContext.request.contextPath}/recursos/js/navbar.js"></script>
     </body>
 </html>
