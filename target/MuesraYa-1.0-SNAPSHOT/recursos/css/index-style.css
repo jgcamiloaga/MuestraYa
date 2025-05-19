@@ -1564,3 +1564,106 @@ body {
     padding: 20px;
   }
 }
+
+/* ========= ESTILOS DEL CARRITO DE COMPRAS ========= */
+
+/* Estilos para el icono del carrito */
+.nav-item a[title="Carrito de compras"] {
+  position: relative !important;
+}
+
+/* Badge del carrito */
+.cart-badge-visible {
+  position: absolute !important;
+  top: -6px !important;
+  right: -6px !important;
+  min-width: 18px !important;
+  height: 18px !important;
+  border-radius: 50% !important;
+  background-color: var(--accent-color) !important;
+  color: white !important;
+  font-size: 12px !important;
+  font-weight: bold !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  z-index: 99999 !important;
+  box-shadow: 0 0 0 2px white !important;
+}
+
+/* Estilos para el modal del carrito */
+#carritoModal .modal-header {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+#carritoModal .modal-title i {
+  color: white;
+}
+
+.cart-item-img {
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.quantity-selector {
+  width: 120px;
+  margin: 0 auto;
+}
+
+.quantity-selector .form-control {
+  text-align: center;
+  border-left: 0;
+  border-right: 0;
+}
+
+.quantity-selector .btn {
+  border-color: #dee2e6;
+}
+
+/* Estilos para las notificaciones toast */
+.toast-container {
+  z-index: 1090;
+}
+
+.toast {
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+
+.toast-success .toast-header {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.toast-success .toast-header .btn-close {
+  filter: brightness(0) invert(1);
+}
+
+.toast-error .toast-header {
+  background-color: var(--danger-color);
+  color: white;
+}
+
+.toast-error .toast-header .btn-close {
+  filter: brightness(0) invert(1);
+}
+
+/* Animaciones para añadir al carrito */
+@keyframes addToCartPulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.btn-add-to-cart:active {
+  animation: addToCartPulse 0.3s ease-in-out;
+}
