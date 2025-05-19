@@ -685,3 +685,63 @@ tr:hover .category-badge i {
         padding-bottom: 20px;
     }
 }
+
+/* Estilos para el botón flotante del carrito */
+.cart-float {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    z-index: 1000;
+}
+
+.cart-float a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 60px;
+    height: 60px;
+    background-color: var(--primary-color);
+    border-radius: 50%;
+    color: white;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+}
+
+.cart-float a:hover {
+    background-color: var(--primary-dark);
+    transform: scale(1.05);
+}
+
+.cart-float i {
+    font-size: 24px;
+}
+
+/* Estilos para las notificaciones toast */
+.toast-container {
+    z-index: 1090;
+}
+
+.toast {
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    margin-bottom: 10px;
+}
+
+.toast-success .toast-header {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.toast-success .toast-header .btn-close {
+    filter: brightness(0) invert(1);
+}
+
+.toast-error .toast-header {
+    background-color: var(--danger-color);
+    color: white;
+}
+
+.toast-error .toast-header .btn-close {
+    filter: brightness(0) invert(1);
+}
