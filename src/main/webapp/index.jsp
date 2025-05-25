@@ -94,16 +94,12 @@
                 visibility: visible !important;
                 opacity: 1 !important;
             }
-            
-            .nav-item a[title="Carrito de compras"] {
+              .nav-item a[title="Carrito de compras"] {
                 position: relative !important;
             }
         </style>
     </head>
     <body>
-        <!-- Overlay para el menú móvil -->
-        <div class="menu-overlay" id="menuOverlay"></div>
-
         <!-- Navigation Bar -->
         <nav class="navbar navbar-expand-lg navbar-dark">
             <div class="container">
@@ -129,9 +125,6 @@
                             <i class="fas fa-store-alt me-2"></i>
                             <span>MuestraYa</span>
                         </a>
-                        <button class="mobile-menu-close" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="true" aria-label="Close menu">
-                            <i class="fas fa-times"></i>
-                        </button>
                     </div>
 
                     <!-- Contenido del menú móvil -->
@@ -143,7 +136,7 @@
                                 <form action="${pageContext.request.contextPath}/products" method="get" class="d-flex">
                                     <input type="hidden" name="action" value="search">
                                     <div class="input-group">
-                                        <input type="search" class="form-control" name="query" placeholder="Buscar productos..." value="${searchQuery}" required>
+                                        <input type="search" class="form-control" name="query" placeholder="Buscar" value="${searchQuery}" required>
                                         <button class="btn" type="submit">
                                             <i class="fas fa-search"></i>
                                         </button>
@@ -190,7 +183,6 @@
                                         <c:forEach var="categoria" items="${categorias}">
                                             <li>
                                                 <a class="dropdown-item" href="${pageContext.request.contextPath}/products?action=category&id=${categoria.idCategoria}">
-                                                    <i class="fas fa-circle"></i>
                                                     ${categoria.nombre}
                                                 </a>
                                             </li>
