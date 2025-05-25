@@ -553,25 +553,6 @@ body {
   background-color: rgba(255, 255, 255, 1);
 }
 
-/* Overlay para cuando el menú está abierto */
-.menu-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 1040;
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity 0.3s ease, visibility 0.3s ease;
-}
-
-.menu-overlay.active {
-  opacity: 1;
-  visibility: visible;
-}
-
 /* Estilos para el menú móvil */
 .mobile-menu-header {
   display: flex;
@@ -585,6 +566,7 @@ body {
   );
   position: relative;
   z-index: 1050;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .mobile-menu-header .navbar-brand {
@@ -686,6 +668,11 @@ body {
   transform: translateY(-3px);
 }
 
+/* Estilos para el menú móvil cuando está abierto */
+body.menu-open {
+  overflow: hidden;
+}
+
 /* ========= MEDIA QUERIES ========= */
 @media (min-width: 992px) {
   .navbar-nav,
@@ -701,9 +688,7 @@ body {
   }
 }
 
-@media (max-width: 991.98px) {
-  /* Contenedor principal del menú desplegable */
-  .navbar-collapse {
+@media (max-width: 991.98px) {  /* Contenedor principal del menú desplegable */    .navbar-collapse {
     position: fixed;
     top: 0;
     left: 0;
@@ -725,17 +710,19 @@ body {
     display: flex;
     flex-direction: column;
   }
-
+  
   .navbar-collapse.show {
     transform: translateX(0);
+    pointer-events: auto; /* Asegura que los elementos del menú sean interactivos */
   }
+  
   /* Ajustes para el header dentro del menú móvil */
   .navbar-collapse .mobile-menu-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 20px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
   }
 
   .mobile-menu-header .navbar-brand {
@@ -831,7 +818,6 @@ body {
   .mobile-action-icon span {
     font-size: 0.8rem;
   }
-
   .mobile-action-icon:hover {
     background-color: rgba(255, 255, 255, 0.2);
     transform: translateY(-3px);
@@ -843,8 +829,7 @@ body {
   }
 
   /* Estilo para los elementos de navegación en el menú móvil */
-  @media (max-width: 991.98px) {
-    .navbar-nav .nav-item {
+  @media (max-width: 991.98px) {    .navbar-nav .nav-item {
       margin: 5px 0;
     }
 
@@ -853,26 +838,27 @@ body {
       padding: 10px 15px;
       border-radius: 8px;
       transition: all 0.3s ease;
+      align-items: center;
+    }    .navbar-nav .nav-link i {
+      margin-right: 10px;
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 1.1rem;
     }
 
     .navbar-nav .nav-link:hover {
       background-color: rgba(255, 255, 255, 0.1);
       transform: translateX(5px);
-    }
-
-    .navbar-nav .nav-link.active {
-      background-color: rgba(255, 255, 255, 0.15);
+    }    .navbar-nav .nav-link.active {
+      background-color: rgba(255, 255, 255, 0.2);
       font-weight: 600;
-    }
-
-    /* Ajustes para el dropdown en móvil */
-    .navbar-nav .dropdown-menu {
+      color: white !important;
+    }    /* Ajustes para el dropdown en móvil */    .navbar-nav .dropdown-menu {
       background-color: rgba(0, 0, 0, 0.2);
       border: none;
       border-radius: 8px;
       margin-top: 5px;
       padding: 10px;
-      box-shadow: none;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
     }
 
     .navbar-nav .dropdown-item {
@@ -880,6 +866,8 @@ body {
       padding: 8px 15px;
       border-radius: 6px;
       transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
     }
 
     .navbar-nav .dropdown-item:hover {
@@ -897,17 +885,6 @@ body {
   padding: 10px;
   margin-top: 10px;
   animation: fadeInDown 0.3s ease;
-}
-
-.dropdown-menu::before {
-  content: "";
-  position: absolute;
-  top: -5px;
-  left: 20px;
-  width: 10px;
-  height: 10px;
-  background-color: white;
-  transform: rotate(45deg);
 }
 
 .dropdown-item {
