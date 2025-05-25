@@ -430,14 +430,11 @@ class Navbar {
     inicializarMenu() {
         // Toggle para menú móvil
         const menuToggle = document.querySelector('.navbar-toggler');
-        const overlay = document.getElementById('menuOverlay');
+        const navbarCollapse = document.querySelector('.navbar-collapse');
         
         if (menuToggle) {
             menuToggle.addEventListener('click', () => {
                 document.body.classList.toggle('menu-open');
-                if (overlay) {
-                    overlay.classList.toggle('active');
-                }
             });
         }
         
@@ -446,19 +443,32 @@ class Navbar {
         if (closeButton) {
             closeButton.addEventListener('click', () => {
                 document.body.classList.remove('menu-open');
-                if (overlay) {
-                    overlay.classList.remove('active');
+            });
+        }
+        
+        // Evitar que los clics dentro del menú cierren el menú
+        if (navbarCollapse) {
+            navbarCollapse.addEventListener('click', (e) => {
+                // Solo detenemos la propagación si no es un enlace o un botón que cierra el menú
+                if (!e.target.closest('[data-bs-toggle="collapse"]') && !e.target.closest('.mobile-menu-close')) {
+                    e.stopPropagation();
                 }
             });
         }
         
-        // Click en overlay para cerrar menú
-        if (overlay) {
-            overlay.addEventListener('click', () => {
-                document.body.classList.remove('menu-open');
-                overlay.classList.remove('active');
-            });
-        }
+        // Cerrar el menú cuando se hace clic en un enlace
+        const navLinks = document.querySelectorAll('.navbar-collapse .nav-link');
+        navLinks.forEach(link => {
+            if (!link.classList.contains('dropdown-toggle')) {
+                link.addEventListener('click', () => {
+                    const bsCollapse = bootstrap.Collapse.getInstance(navbarCollapse);
+                    if (bsCollapse) {
+                        bsCollapse.hide();
+                    }
+                    document.body.classList.remove('menu-open');
+                });
+            }
+        });
     }
     
     hacerNavbarFijo() {
