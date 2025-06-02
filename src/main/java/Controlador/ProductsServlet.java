@@ -60,14 +60,19 @@ public class ProductsServlet extends HttpServlet {    @Override
         
         // Guardar esta solicitud para detectar bucles
         session.setAttribute("lastProductRequest", fullPath);
-        
-        String action = request.getParameter("action");
+          String action = request.getParameter("action");
         String categoryId = request.getParameter("id");
         String searchQuery = request.getParameter("query");
         
         // Cargar categorías para el filtro
         List<Categoria> categorias = getCategorias();
         request.setAttribute("categorias", categorias);
+        
+        // Manejar solicitud de detalle de producto
+        if (action != null && action.equals("detail") && categoryId != null && !categoryId.trim().isEmpty()) {
+            showProductDetail(request, response, categoryId);
+            return;
+        }
         
         // Filtrar por categoría o búsqueda, o obtener todos los productos
         List<Material> materiales;
@@ -102,11 +107,55 @@ public class ProductsServlet extends HttpServlet {    @Override
         // Utilizar directamente el DAO
         MaterialDAO materialDAO = new MaterialDAO();
         return materialDAO.buscarPorNombreOId(query);
-    }
-      private List<Categoria> getCategorias() {
+    }    private List<Categoria> getCategorias() {
         // Utilizar directamente el DAO
         CategoriaDAO categoriaDAO = new CategoriaDAO();
         return categoriaDAO.listarTodas();
+    }
+    
+    /**
+     * Muestra la página de detalle de un producto
+     * @param request Solicitud HTTP
+     * @param response Respuesta HTTP
+     * @param materialId ID del material a mostrar
+     * @throws ServletException Si ocurre un error en el servlet
+     * @throws IOException Si ocurre un error de E/S
+     */
+    private void showProductDetail(HttpServletRequest request, HttpServletResponse response, String materialId) 
+            throws ServletException, IOException {
+        
+        MaterialDAO materialDAO = new MaterialDAO();
+        
+        // Obtener el material por su ID
+        Material material = materialDAO.obtenerPorId(materialId);
+        
+        if (material == null) {
+            // Si no se encuentra el material, redirigir a la página principal
+            response.sendRedirect(request.getContextPath() + "/");
+            return;
+        }
+        
+        // Obtener productos relacionados (de la misma categoría)
+        List<Material> productosRelacionados = materialDAO.buscarPorCategoria(material.getIdCategoria());
+        
+        // Filtrar el producto actual de la lista de relacionados
+        productosRelacionados.removeIf(m -> m.getIdMaterial().equals(materialId));
+        
+        // Limitar a máximo 4 productos relacionados
+        if (productosRelacionados.size() > 4) {
+            productosRelacionados = productosRelacionados.subList(0, 4);
+        }
+        
+        // Establecer atributos para la vista
+        request.setAttribute("material", material);
+        request.setAttribute("productosRelacionados", productosRelacionados);
+        
+        // Cargar categorías para el navbar
+        List<Categoria> categorias = getCategorias();
+        request.setAttribute("categorias", categorias);
+        
+        // Mostrar la página de detalle
+        request.getRequestDispatcher("/vista/detalleProducto.jsp").forward(request, response);
     }
       // Este método ya no es necesario ya que usamos el DAO
       // Estos métodos ya no son necesarios ya que estamos usando DAOs
