@@ -17,6 +17,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -35,17 +36,22 @@ public class SendForm extends HttpServlet {
             throws ServletException, IOException {
 
         LOGGER.info("Iniciando procesamiento de formulario de registro de material");
-        
-        // Obtener los parámetros del formulario
+          // Obtener los parámetros del formulario
         String codigo = request.getParameter("codigo");
         String nombre = request.getParameter("nombre");
         String precioStr = request.getParameter("precio");
         String categoria = request.getParameter("categoria");
+        String descripcion = request.getParameter("descripcion");
+        String stockStr = request.getParameter("stock");
+        String especificaciones = request.getParameter("especificaciones");
+        String unidadMedida = request.getParameter("unidadMedida");
+        String pesoStr = request.getParameter("peso");
+        String dimension = request.getParameter("dimension");
+        String color = request.getParameter("color");
+        boolean destacado = request.getParameter("destacado") != null;
 
-        LOGGER.log(Level.INFO, "Datos recibidos: codigo={0}, nombre={1}, precio={2}, categoria={3}", 
-                new Object[]{codigo, nombre, precioStr, categoria});
-
-        // Convertir precio a double
+        LOGGER.log(Level.INFO, "Datos recibidos: codigo={0}, nombre={1}, precio={2}, categoria={3}, stock={4}", 
+                new Object[]{codigo, nombre, precioStr, categoria, stockStr});        // Convertir precio a double
         double precio;
         try {
             precio = Double.parseDouble(precioStr);
@@ -55,6 +61,38 @@ public class SendForm extends HttpServlet {
         } catch (NumberFormatException e) {
             LOGGER.log(Level.WARNING, "Error en formato de precio: {0}", e.getMessage());
             request.setAttribute("errorMessage", "El precio debe ser un número válido");
+            request.getRequestDispatcher("/vista/registerMaterial.jsp").forward(request, response);
+            return;
+        }
+        
+        // Convertir stock a int
+        int stock = 0;
+        try {
+            if (stockStr != null && !stockStr.isEmpty()) {
+                stock = Integer.parseInt(stockStr);
+                if (stock < 0) {
+                    throw new NumberFormatException("El stock no puede ser negativo");
+                }
+            }
+        } catch (NumberFormatException e) {
+            LOGGER.log(Level.WARNING, "Error en formato de stock: {0}", e.getMessage());
+            request.setAttribute("errorMessage", "El stock debe ser un número entero válido");
+            request.getRequestDispatcher("/vista/registerMaterial.jsp").forward(request, response);
+            return;
+        }
+        
+        // Convertir peso a BigDecimal si está presente
+        BigDecimal peso = null;
+        try {
+            if (pesoStr != null && !pesoStr.isEmpty()) {
+                peso = new BigDecimal(pesoStr);
+                if (peso.compareTo(BigDecimal.ZERO) < 0) {
+                    throw new NumberFormatException("El peso no puede ser negativo");
+                }
+            }
+        } catch (NumberFormatException e) {
+            LOGGER.log(Level.WARNING, "Error en formato de peso: {0}", e.getMessage());
+            request.setAttribute("errorMessage", "El peso debe ser un número válido");
             request.getRequestDispatcher("/vista/registerMaterial.jsp").forward(request, response);
             return;
         }
@@ -116,13 +154,22 @@ public class SendForm extends HttpServlet {
         }        
         
         // Crear instancia del DAO
-        MaterialDAO materialDAO = new MaterialDAO();
-        // Crear objeto Material con los datos del formulario
+        MaterialDAO materialDAO = new MaterialDAO();        // Crear objeto Material con los datos del formulario
         Material material = new Material(codigo, nombre, new BigDecimal(precio));
         material.setIdCategoria(categoria);
         material.setImagen(fileName);
-        LOGGER.log(Level.INFO, "Creando material con codigo={0}, nombre={1}, categoria={2}, imagen={3}",
-                new Object[]{codigo, nombre, categoria, fileName});
+        material.setStock(stock);
+        material.setDescripcion(descripcion);
+        material.setEspecificaciones(especificaciones);
+        material.setUnidadMedida(unidadMedida);
+        material.setPeso(peso);
+        material.setDimension(dimension);
+        material.setColor(color);
+        material.setDestacado(destacado);
+        material.setFechaCreacion(LocalDateTime.now());
+        
+        LOGGER.log(Level.INFO, "Creando material con codigo={0}, nombre={1}, categoria={2}, imagen={3}, stock={4}",
+                new Object[]{codigo, nombre, categoria, fileName, stock});
         // Insertar el material usando el DAO
         boolean insertado = materialDAO.insertar(material);
         if (insertado) {
