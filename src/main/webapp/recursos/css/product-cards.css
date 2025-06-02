@@ -1,0 +1,126 @@
+/* Product Card Styles */
+.product-card {
+    border: none;
+    border-radius: 15px;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+    position: relative;
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.product-card .card-img-top {
+    height: 200px;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.product-card:hover .card-img-top {
+    transform: scale(1.05);
+}
+
+.product-card .card-body {
+    padding: 1.2rem;
+}
+
+.product-card .card-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #333;
+    line-height: 1.4;
+}
+
+.product-card .card-text {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+}
+
+.category-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    padding: 5px 10px;
+    border-radius: 30px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: white;
+    z-index: 2;
+    background-color: var(--primary-color);
+}
+
+.category-badge.cat001 {
+    background-color: var(--cat001-color);
+}
+
+.category-badge.cat002 {
+    background-color: var(--cat002-color);
+}
+
+.category-badge.cat003 {
+    background-color: var(--cat003-color);
+}
+
+.category-badge.cat004 {
+    background-color: var(--cat004-color);
+}
+
+.category-badge.cat005 {
+    background-color: var(--cat005-color);
+}
+
+.category-badge.cat006 {
+    background-color: var(--cat006-color);
+}
+
+.product-card .btn-outline-primary {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+    transition: all 0.3s ease;
+}
+
+.product-card .btn-outline-primary:hover {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.product-card .add-to-cart-btn {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--primary-color);
+    border: none;
+    color: white;
+    transition: all 0.3s ease;
+}
+
+.product-card .add-to-cart-btn:hover {
+    background-color: var(--primary-dark);
+    transform: scale(1.1);
+}
+
+/* Para dispositivos pequeños */
+@media (max-width: 767px) {
+    .product-card .card-img-top {
+        height: 180px;
+    }
+    
+    .product-card .card-body {
+        padding: 1rem;
+    }
+    
+    .product-card .card-title {
+        font-size: 1rem;
+    }
+}
