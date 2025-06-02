@@ -1,0 +1,125 @@
+/* Estilos para textarea */
+.textarea-container {
+    display: block;
+    width: 100%;
+}
+
+.textarea-container .icon {
+    top: 15px; /* Ajustar posición del icono para textareas */
+    transform: none;
+}
+
+.textarea-container textarea {
+    width: 100%;
+    padding: 14px 14px 14px 45px;
+    border: 1px solid #e1e5ee;
+    border-radius: 10px;
+    font-size: 15px;
+    transition: var(--transition);
+    color: var(--text-color);
+    background-color: #f9fafc;
+    min-height: 100px;
+    resize: none;
+    font-family: inherit;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.03);
+}
+
+.textarea-container textarea::placeholder {
+    color: #b0b7c3;
+}
+
+.textarea-container textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(58, 134, 255, 0.15);
+    background-color: white;
+}
+
+.textarea-container textarea:focus + .icon {
+    color: var(--primary-color);
+}
+
+/* Estilos para layout en filas */
+.form-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.form-col {
+    flex: 1 1 calc(50% - 8px);
+    min-width: 200px;
+}
+
+/* Estilos para checkbox */
+.checkbox-group {
+    margin-top: 15px;
+}
+
+.checkbox-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    padding: 5px;
+}
+
+.checkbox-container input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #e1e5ee;
+    border-radius: 5px;
+    outline: none;
+    flex-shrink: 0;
+    cursor: pointer;
+    transition: var(--transition);
+    position: relative;
+    background-color: #f9fafc;
+}
+
+.checkbox-container input[type="checkbox"]:checked {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.checkbox-container input[type="checkbox"]:checked::before {
+    content: "✓";
+    position: absolute;
+    color: white;
+    font-size: 14px;
+    font-weight: bold;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.checkbox-container input[type="checkbox"]:hover {
+    border-color: var(--primary-light);
+    background-color: #f0f7ff;
+}
+
+.checkbox-container input[type="checkbox"]:focus {
+    box-shadow: 0 0 0 3px rgba(58, 134, 255, 0.15);
+}
+
+.checkbox-container label {
+    font-weight: normal;
+    margin-bottom: 0;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+/* Ajustes responsive para layout en filas */
+@media (max-width: 580px) {
+    .form-row {
+        flex-direction: column;
+        gap: 20px;
+    }
+    
+    .form-col {
+        width: 100%;
+    }
+}
