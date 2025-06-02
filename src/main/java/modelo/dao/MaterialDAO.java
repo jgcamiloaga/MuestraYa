@@ -26,8 +26,9 @@ public class MaterialDAO {
         ResultSet rs = null;
         
         try {
-            conn = ConexionDB.getConnection();
-            String sql = "SELECT m.idMaterial, m.nombre, m.precio, m.idCategoria, m.imagen, " +
+            conn = ConexionDB.getConnection();            String sql = "SELECT m.idMaterial, m.nombre, m.precio, m.idCategoria, m.imagen, " +
+                    "m.descripcion, m.stock, m.destacado, m.especificaciones, m.fecha_creacion, " +
+                    "m.unidad_medida, m.peso, m.dimension, m.color, " +
                     "CASE " +
                     "    WHEN m.idCategoria = 'CAT001' THEN 'Herramienta' " +
                     "    WHEN m.idCategoria = 'CAT002' THEN 'Ropa' " +
@@ -68,8 +69,9 @@ public class MaterialDAO {
         ResultSet rs = null;
         
         try {
-            conn = ConexionDB.getConnection();
-            String sql = "SELECT m.idMaterial, m.nombre, m.precio, m.idCategoria, m.imagen, " +
+            conn = ConexionDB.getConnection();            String sql = "SELECT m.idMaterial, m.nombre, m.precio, m.idCategoria, m.imagen, " +
+                    "m.descripcion, m.stock, m.destacado, m.especificaciones, m.fecha_creacion, " +
+                    "m.unidad_medida, m.peso, m.dimension, m.color, " +
                     "CASE " +
                     "    WHEN m.idCategoria = 'CAT001' THEN 'Herramienta' " +
                     "    WHEN m.idCategoria = 'CAT002' THEN 'Ropa' " +
@@ -112,8 +114,9 @@ public class MaterialDAO {
         ResultSet rs = null;
         
         try {
-            conn = ConexionDB.getConnection();
-            String sql = "SELECT m.idMaterial, m.nombre, m.precio, m.idCategoria, m.imagen, " +
+            conn = ConexionDB.getConnection();            String sql = "SELECT m.idMaterial, m.nombre, m.precio, m.idCategoria, m.imagen, " +
+                    "m.descripcion, m.stock, m.destacado, m.especificaciones, m.fecha_creacion, " +
+                    "m.unidad_medida, m.peso, m.dimension, m.color, " +
                     "CASE " +
                     "    WHEN m.idCategoria = 'CAT001' THEN 'Herramienta' " +
                     "    WHEN m.idCategoria = 'CAT002' THEN 'Ropa' " +
@@ -124,13 +127,13 @@ public class MaterialDAO {
                     "    ELSE 'Sin categoría' " +
                     "END AS nombreCategoria " +
                     "FROM material m " +
-                    "WHERE m.nombre LIKE ? OR m.idMaterial LIKE ? " +
+                    "WHERE m.nombre LIKE ? OR m.idMaterial LIKE ? OR m.descripcion LIKE ? " +
                     "ORDER BY m.nombre ASC";
             
-            stmt = conn.prepareStatement(sql);
-            String searchParam = "%" + query + "%";
+            stmt = conn.prepareStatement(sql);            String searchParam = "%" + query + "%";
             stmt.setString(1, searchParam);
             stmt.setString(2, searchParam);
+            stmt.setString(3, searchParam);
             rs = stmt.executeQuery();
             
             while (rs.next()) {
@@ -154,8 +157,7 @@ public class MaterialDAO {
     public List<Material> buscarPorNombreOId(String query) {
         return buscarPorTexto(query);
     }
-    
-    /**
+      /**
      * Inserta un nuevo material en la base de datos
      * @param material Material a insertar
      * @return true si la inserción fue exitosa
@@ -167,7 +169,9 @@ public class MaterialDAO {
         
         try {
             conn = ConexionDB.getConnection();
-            String sql = "INSERT INTO material (idMaterial, nombre, precio, idCategoria, imagen) VALUES (?, ?, ?, ?, ?)";
+            String sql = "INSERT INTO material (idMaterial, nombre, precio, idCategoria, imagen, descripcion, stock, " +
+                    "destacado, especificaciones, unidad_medida, peso, dimension, color) VALUES " +
+                    "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
             
             stmt = conn.prepareStatement(sql);
             stmt.setString(1, material.getIdMaterial());
@@ -175,20 +179,35 @@ public class MaterialDAO {
             stmt.setBigDecimal(3, material.getPrecio());
             stmt.setString(4, material.getIdCategoria());
             stmt.setString(5, material.getImagen());
+            stmt.setString(6, material.getDescripcion());
+            stmt.setInt(7, material.getStock());
+            stmt.setBoolean(8, material.isDestacado());
+            stmt.setString(9, material.getEspecificaciones());
+            stmt.setString(10, material.getUnidadMedida());
+            
+            // Manejo de valores nulos
+            if (material.getPeso() != null) {
+                stmt.setBigDecimal(11, material.getPeso());
+            } else {
+                stmt.setNull(11, java.sql.Types.DECIMAL);
+            }
+            
+            stmt.setString(12, material.getDimension());
+            stmt.setString(13, material.getColor());
             
             int filasAfectadas = stmt.executeUpdate();
             resultado = filasAfectadas > 0;
             
         } catch (SQLException e) {
             System.err.println("Error al insertar material: " + e.getMessage());
+            e.printStackTrace();
         } finally {
             cerrarRecursos(null, stmt, conn);
         }
         
         return resultado;
     }
-    
-    /**
+      /**
      * Actualiza un material existente
      * @param material Material con los datos actualizados
      * @return true si la actualización fue exitosa
@@ -200,14 +219,31 @@ public class MaterialDAO {
         
         try {
             conn = ConexionDB.getConnection();
-            String sql = "UPDATE material SET nombre = ?, precio = ?, idCategoria = ?, imagen = ? WHERE idMaterial = ?";
+            String sql = "UPDATE material SET nombre = ?, precio = ?, idCategoria = ?, imagen = ?, " +
+                    "descripcion = ?, stock = ?, destacado = ?, especificaciones = ?, " +
+                    "unidad_medida = ?, peso = ?, dimension = ?, color = ? WHERE idMaterial = ?";
             
             stmt = conn.prepareStatement(sql);
             stmt.setString(1, material.getNombre());
             stmt.setBigDecimal(2, material.getPrecio());
             stmt.setString(3, material.getIdCategoria());
             stmt.setString(4, material.getImagen());
-            stmt.setString(5, material.getIdMaterial());
+            stmt.setString(5, material.getDescripcion());
+            stmt.setInt(6, material.getStock());
+            stmt.setBoolean(7, material.isDestacado());
+            stmt.setString(8, material.getEspecificaciones());
+            stmt.setString(9, material.getUnidadMedida());
+            
+            // Manejo de valores nulos
+            if (material.getPeso() != null) {
+                stmt.setBigDecimal(10, material.getPeso());
+            } else {
+                stmt.setNull(10, java.sql.Types.DECIMAL);
+            }
+            
+            stmt.setString(11, material.getDimension());
+            stmt.setString(12, material.getColor());
+            stmt.setString(13, material.getIdMaterial());
             
             int filasAfectadas = stmt.executeUpdate();
             resultado = filasAfectadas > 0;
@@ -219,6 +255,50 @@ public class MaterialDAO {
         }
         
         return resultado;
+    }
+    
+    /**
+     * Obtiene un material por su ID
+     * @param materialId ID del material a buscar
+     * @return Material encontrado o null si no existe
+     */
+    public Material obtenerPorId(String materialId) {
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+        Material material = null;
+        
+        try {
+            conn = ConexionDB.getConnection();
+            String sql = "SELECT m.idMaterial, m.nombre, m.precio, m.idCategoria, m.imagen, " +
+                    "m.descripcion, m.stock, m.destacado, m.especificaciones, m.fecha_creacion, " +
+                    "m.unidad_medida, m.peso, m.dimension, m.color, " +
+                    "CASE " +
+                    "    WHEN m.idCategoria = 'CAT001' THEN 'Herramienta' " +
+                    "    WHEN m.idCategoria = 'CAT002' THEN 'Ropa' " +
+                    "    WHEN m.idCategoria = 'CAT003' THEN 'Cocina' " +
+                    "    WHEN m.idCategoria = 'CAT004' THEN 'Electrónica' " +
+                    "    WHEN m.idCategoria = 'CAT005' THEN 'Construcción' " +
+                    "    WHEN m.idCategoria = 'CAT006' THEN 'Oficina' " +
+                    "    ELSE 'Sin categoría' " +
+                    "END AS nombreCategoria " +
+                    "FROM material m " +
+                    "WHERE m.idMaterial = ?";
+            
+            stmt = conn.prepareStatement(sql);
+            stmt.setString(1, materialId);
+            rs = stmt.executeQuery();
+            
+            if (rs.next()) {
+                material = crearMaterialDesdeResultSet(rs);
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al obtener material por ID: " + e.getMessage());
+        } finally {
+            cerrarRecursos(rs, stmt, conn);
+        }
+        
+        return material;
     }
     
     /**
@@ -249,8 +329,7 @@ public class MaterialDAO {
         
         return resultado;
     }
-    
-    /**
+      /**
      * Busca un material por su ID
      * @param idMaterial ID del material
      * @return El material encontrado o null
@@ -264,6 +343,8 @@ public class MaterialDAO {
         try {
             conn = ConexionDB.getConnection();
             String sql = "SELECT m.idMaterial, m.nombre, m.precio, m.idCategoria, m.imagen, " +
+                    "m.descripcion, m.stock, m.destacado, m.especificaciones, m.fecha_creacion, " +
+                    "m.unidad_medida, m.peso, m.dimension, m.color, " +
                     "CASE " +
                     "    WHEN m.idCategoria = 'CAT001' THEN 'Herramienta' " +
                     "    WHEN m.idCategoria = 'CAT002' THEN 'Ropa' " +
@@ -291,8 +372,7 @@ public class MaterialDAO {
         
         return material;
     }
-    
-    /**
+      /**
      * Crea un objeto Material desde un ResultSet
      * @param rs ResultSet con datos del material
      * @return Objeto Material
@@ -308,6 +388,28 @@ public class MaterialDAO {
         material.setIdCategoria(rs.getString("idCategoria"));
         material.setNombreCategoria(rs.getString("nombreCategoria"));
         material.setImagen(rs.getString("imagen"));
+        
+        // Obtener los nuevos campos si están disponibles en el ResultSet
+        try {
+            material.setDescripcion(rs.getString("descripcion"));
+            material.setStock(rs.getInt("stock"));
+            material.setDestacado(rs.getBoolean("destacado"));
+            material.setEspecificaciones(rs.getString("especificaciones"));
+            material.setUnidadMedida(rs.getString("unidad_medida"));
+            material.setPeso(rs.getBigDecimal("peso"));
+            material.setDimension(rs.getString("dimension"));
+            material.setColor(rs.getString("color"));
+            
+            // Intentar obtener fecha_creacion (manejo seguro para bases de datos antiguas)
+            if (rs.getTimestamp("fecha_creacion") != null) {
+                material.setFechaCreacion(rs.getTimestamp("fecha_creacion").toLocalDateTime());
+            }
+        } catch (SQLException e) {
+            // Ignorar errores por columnas no existentes
+            // Esto permite que el código funcione con la estructura antigua y nueva de la tabla
+            System.out.println("Aviso: Algunas columnas nuevas no están disponibles. " + e.getMessage());
+        }
+        
         return material;
     }
     
