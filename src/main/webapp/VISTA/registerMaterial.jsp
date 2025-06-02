@@ -13,12 +13,12 @@
 %>
 <!DOCTYPE html>
 <html lang="es">
-    <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <head>        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>MuestraYa - Registro Materiales</title>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
         <link rel="stylesheet" href="${pageContext.request.contextPath}/recursos/css/registerMaterial-style.css"/>
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/recursos/css/form-fields.css"/>
     </head>
     <body>
         <div class="page-container">
@@ -62,13 +62,76 @@
                             <i class="fas fa-tag icon"></i>
                             <input type="text" id="nombre" name="nombre" placeholder="Ingrese el nombre" value="${prevNombre}" required>
                         </div>
-                    </div>
-
-                    <div class="form-group">
+                    </div>                    <div class="form-group">
                         <label for="precio">Precio</label>
                         <div class="input-container">
                             <i class="fas fa-dollar-sign icon"></i>
                             <input type="number" id="precio" name="precio" step="0.01" min="0" placeholder="Ingrese el precio" value="${prevPrecio}" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="stock">Stock</label>
+                        <div class="input-container">
+                            <i class="fas fa-cubes icon"></i>
+                            <input type="number" id="stock" name="stock" min="0" placeholder="Cantidad disponible" value="${prevStock}" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="descripcion">Descripción</label>
+                        <div class="input-container textarea-container">
+                            <i class="fas fa-align-left icon"></i>
+                            <textarea id="descripcion" name="descripcion" placeholder="Descripción detallada del producto" rows="3">${prevDescripcion}</textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="especificaciones">Especificaciones</label>
+                        <div class="input-container textarea-container">
+                            <i class="fas fa-list-ul icon"></i>
+                            <textarea id="especificaciones" name="especificaciones" placeholder="Especificaciones técnicas del producto" rows="3">${prevEspecificaciones}</textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-group form-row">
+                        <div class="form-col">
+                            <label for="unidadMedida">Unidad de Medida</label>
+                            <div class="input-container">
+                                <i class="fas fa-ruler icon"></i>
+                                <input type="text" id="unidadMedida" name="unidadMedida" placeholder="Ej: unidades, kg, m" value="${prevUnidadMedida}">
+                            </div>
+                        </div>
+                        <div class="form-col">
+                            <label for="color">Color</label>
+                            <div class="input-container">
+                                <i class="fas fa-palette icon"></i>
+                                <input type="text" id="color" name="color" placeholder="Color principal" value="${prevColor}">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group form-row">
+                        <div class="form-col">
+                            <label for="peso">Peso (kg)</label>
+                            <div class="input-container">
+                                <i class="fas fa-weight-hanging icon"></i>
+                                <input type="number" id="peso" name="peso" step="0.01" min="0" placeholder="Peso en kg" value="${prevPeso}">
+                            </div>
+                        </div>
+                        <div class="form-col">
+                            <label for="dimension">Dimensiones</label>
+                            <div class="input-container">
+                                <i class="fas fa-ruler-combined icon"></i>
+                                <input type="text" id="dimension" name="dimension" placeholder="Ej: 10x20x30 cm" value="${prevDimension}">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group checkbox-group">
+                        <div class="input-container checkbox-container">
+                            <input type="checkbox" id="destacado" name="destacado" ${prevDestacado ? 'checked' : ''}>
+                            <label for="destacado">Marcar como producto destacado</label>
                         </div>
                     </div>
 
