@@ -16,4 +16,5 @@ modelo\dao\CategoriaDAO.class
 servicios\ConexionDB.class
 controlador\AuthFilter.class
 controlador\ResourceServlet.class
+controlador\CreateDefaultImageServlet.class
 controlador\LoginServlet.class
