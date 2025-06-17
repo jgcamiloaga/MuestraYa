@@ -413,23 +413,15 @@
                                         <c:otherwise>
                                             <img src="${pageContext.request.contextPath}/image/default.jpg" class="card-img-top product-img" alt="${material.nombre}">
                                         </c:otherwise>
-                                    </c:choose>
-                                    <div class="card-body d-flex flex-column">                                        <h5 class="card-title">${material.nombre}</h5>
+                                    </c:choose>                                    <div class="card-body d-flex flex-column">
+                                        <h5 class="card-title">${material.nombre}</h5>
                                         <p class="card-text">$${material.precio}</p>
                                         <div class="mt-auto">
                                             <div class="d-flex justify-content-between align-items-center mb-2">
-                                                <a href="${pageContext.request.contextPath}/products?action=detail&id=${material.idMaterial}" class="btn btn-outline-primary btn-sm">Ver detalles</a>
-                                                <button class="btn btn-primary btn-sm add-to-cart-btn">
-                                                    <i class="fas fa-shopping-cart"></i>
-                                                </button>
-                                            </div>
-                                        </div>
                                                 <span class="badge bg-secondary">${material.idMaterial}</span>
-                                                <a href="${pageContext.request.contextPath}/materiales?from=index" class="btn btn-sm btn-outline-secondary">
-                                                    <i class="fas fa-eye"></i> Ver Detalles
-                                                </a>
+                                                <a href="${pageContext.request.contextPath}/products?action=detail&id=${material.idMaterial}" class="btn btn-outline-primary btn-sm">Ver detalles</a>
                                             </div>
-                                            <button class="btn btn-sm btn-primary w-100 btn-add-to-cart" data-id="${material.idMaterial}">
+                                            <button class="btn btn-primary w-100 btn-add-to-cart" data-id="${material.idMaterial}">
                                                 <i class="fas fa-shopping-cart me-1"></i> Añadir al carrito
                                             </button>
                                         </div>
