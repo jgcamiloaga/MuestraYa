@@ -1,53 +1,62 @@
-/**
- * MuestraYa - Sistema de Carrito de Compras
- * Este script maneja todas las funcionalidades relacionadas con el carrito de compras 
- * y el navbar responsivo.
- */
-
-// Clase para gestionar el carrito
+// Sistema de carrito y navegación mejorado con integración backend
 class Carrito {
     constructor() {
-        // Inicialización del carrito desde localStorage o creación de uno nuevo
-        this.items = JSON.parse(localStorage.getItem('carrito')) || [];
+        this.items = [];
         this.total = 0;
         this.cantidadTotal = 0;
-        this.actualizarContador();
+        this.contextPath = window.contextPath || '';
+        
+        // Cargar carrito desde el servidor al inicializar
+        this.cargarCarritoDelServidor();
         this.inicializarEventos();
     }
 
-    // Inicializar todos los eventos relacionados con el carrito
-    inicializarEventos() {
-        // Botones "Añadir al carrito"
-        document.querySelectorAll('.btn-add-to-cart').forEach(button => {
-            button.addEventListener('click', (e) => {
-                e.preventDefault();
-                const card = e.target.closest('.product-card');                if (card) {
-                    const id = card.dataset.id || card.querySelector('button[data-id]').dataset.id;
-                    const nombre = card.querySelector('.card-title').textContent;
-                    const precioText = card.querySelector('.card-text').textContent;
-                    const precio = parseFloat(precioText.replace('$', '').trim());
-                    const imagen = card.querySelector('img').src;
-                    
-                    this.agregarItem({
-                        id,
-                        nombre,
-                        precio,
-                        imagen,
-                        cantidad: 1
-                    });
-                    
-                    this.mostrarNotificacion(`${nombre} añadido al carrito`);
+    // Cargar carrito desde el servidor
+    async cargarCarritoDelServidor() {
+        try {
+            const response = await fetch(this.contextPath + '/carrito-server?action=listar', {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json'
                 }
             });
-        });
 
-        // Enlace del carrito en la navbar
-        const enlacesCarrito = document.querySelectorAll('a[title="Carrito de compras"]');
-        enlacesCarrito.forEach(enlace => {
-            enlace.addEventListener('click', (e) => {
-                e.preventDefault();
-                this.mostrarModalCarrito();
-            });
+            if (response.ok) {
+                const data = await response.json();
+                this.items = data.items || [];
+                this.cantidadTotal = data.totalItems || 0;
+                this.total = data.total || 0;
+                this.actualizarContador();
+            } else if (response.status === 401) {
+                // Usuario no autenticado, usar localStorage como fallback
+                this.cargarCarritoLocal();
+            }
+        } catch (error) {
+            console.log('Error al cargar carrito del servidor, usando localStorage');
+            this.cargarCarritoLocal();
+        }
+    }
+
+    // Cargar carrito desde localStorage (fallback)
+    cargarCarritoLocal() {
+        const carritoGuardado = localStorage.getItem('carrito');
+        if (carritoGuardado) {
+            this.items = JSON.parse(carritoGuardado);
+            this.calcularTotal();
+        }
+        this.actualizarContador();
+    }
+
+    // Inicializar eventos del carrito
+    inicializarEventos() {
+        // Enlaces del carrito en la navbar
+        document.querySelectorAll('.nav-link').forEach(enlace => {
+            if (enlace.querySelector('i.fa-shopping-cart') || enlace.textContent.includes('Carrito')) {
+                enlace.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.mostrarModalCarrito();
+                });
+            }
         });
 
         // Enlaces móviles del carrito
@@ -61,348 +70,368 @@ class Carrito {
         });
     }
 
-    // Agregar un ítem al carrito
-    agregarItem(item) {
-        const itemExistente = this.items.find(i => i.id === item.id);
+    // Agregar un ítem al carrito (integrado con backend)
+    async agregarItem(idMaterial, nombre, precio, cantidad = 1, imagen = 'default.jpg') {
+        try {
+            const response = await fetch(this.contextPath + '/carrito-server', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `action=agregar&idMaterial=${encodeURIComponent(idMaterial)}&cantidad=${cantidad}&precio=${precio}`
+            });            if (response.ok) {
+                const data = await response.json();
+                if (data.success) {
+                    // Actualizar estado local
+                    this.cantidadTotal = data.totalItems;
+                    this.total = data.total;
+                    this.actualizarContador();
+                    
+                    // Recargar items del servidor
+                    await this.cargarCarritoDelServidor();
+                    
+                    // Actualizar interfaz del modal si está abierto
+                    this.actualizarModalCarrito();
+                    
+                    return true;
+                } else {
+                    console.error('Error del servidor:', data.message);
+                    return false;
+                }
+            } else if (response.status === 401) {
+                // Usuario no autenticado, usar localStorage
+                const result = this.agregarItemLocal(idMaterial, nombre, precio, cantidad, imagen);
+                // Actualizar interfaz para modo local también
+                this.actualizarModalCarrito();
+                return result;
+            }        } catch (error) {
+            console.error('Error al agregar al carrito:', error);
+            // Fallback a localStorage
+            const result = this.agregarItemLocal(idMaterial, nombre, precio, cantidad, imagen);
+            // Actualizar interfaz en caso de error también
+            this.actualizarModalCarrito();
+            return result;
+        }
+        return false;
+    }    // Agregar item localmente (fallback)
+    agregarItemLocal(idMaterial, nombre, precio, cantidad, imagen) {
+        const itemExistente = this.items.find(i => i.idMaterial === idMaterial);
         
         if (itemExistente) {
-            itemExistente.cantidad += item.cantidad;
+            itemExistente.cantidad += cantidad;
         } else {
-            this.items.push(item);
+            this.items.push({
+                idMaterial: idMaterial,
+                nombre: nombre,
+                precio: precio,
+                cantidad: cantidad,
+                imagen: imagen
+            });
         }
         
-        this.guardarCarrito();
+        this.calcularTotal();
+        this.guardarCarritoLocal();
         this.actualizarContador();
-    }
+        return true;
+    }// Actualizar cantidad de un ítem
+    async actualizarCantidad(idMaterial, cantidad) {
+        try {
+            const response = await fetch(this.contextPath + '/carrito-server', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `action=actualizar&idMaterial=${encodeURIComponent(idMaterial)}&cantidad=${cantidad}`
+            });
 
-    // Actualizar cantidad de un ítem
-    actualizarCantidad(id, cantidad) {
-        const item = this.items.find(i => i.id === id);
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success) {
+                    this.cantidadTotal = data.totalItems;
+                    this.total = data.total;
+                    this.actualizarContador();
+                    await this.cargarCarritoDelServidor();
+                    // Actualizar inmediatamente la interfaz del modal si está abierto
+                    this.actualizarModalCarrito();
+                    return true;
+                }
+            } else if (response.status === 401) {
+                const result = this.actualizarCantidadLocal(idMaterial, cantidad);
+                // Actualizar interfaz para modo local también
+                this.actualizarModalCarrito();
+                return result;
+            }
+        } catch (error) {
+            console.error('Error al actualizar cantidad:', error);
+            const result = this.actualizarCantidadLocal(idMaterial, cantidad);
+            // Actualizar interfaz en caso de error también
+            this.actualizarModalCarrito();
+            return result;
+        }
+        return false;
+    }    // Actualizar cantidad localmente
+    actualizarCantidadLocal(idMaterial, cantidad) {
+        const item = this.items.find(i => i.idMaterial === idMaterial);
         if (item) {
             item.cantidad = cantidad;
             if (item.cantidad <= 0) {
-                this.eliminarItem(id);
+                this.eliminarItemLocal(idMaterial);
             } else {
-                this.guardarCarrito();
+                this.calcularTotal();
+                this.guardarCarritoLocal();
                 this.actualizarContador();
             }
+            return true;
         }
-    }
+        return false;
+    }    // Eliminar un ítem del carrito
+    async eliminarItem(idMaterial) {
+        try {
+            const response = await fetch(this.contextPath + '/carrito-server', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `action=eliminar&idMaterial=${encodeURIComponent(idMaterial)}`
+            });
 
-    // Eliminar un ítem del carrito
-    eliminarItem(id) {
-        this.items = this.items.filter(item => item.id !== id);
-        this.guardarCarrito();
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success) {
+                    this.cantidadTotal = data.totalItems;
+                    this.total = data.total;
+                    this.actualizarContador();
+                    await this.cargarCarritoDelServidor();
+                    // Actualizar inmediatamente la interfaz del modal si está abierto
+                    this.actualizarModalCarrito();
+                    return true;
+                }
+            } else if (response.status === 401) {
+                const result = this.eliminarItemLocal(idMaterial);
+                // Actualizar interfaz para modo local también
+                this.actualizarModalCarrito();
+                return result;
+            }
+        } catch (error) {
+            console.error('Error al eliminar del carrito:', error);
+            const result = this.eliminarItemLocal(idMaterial);
+            // Actualizar interfaz en caso de error también
+            this.actualizarModalCarrito();
+            return result;
+        }
+        return false;
+    }    // Eliminar item localmente
+    eliminarItemLocal(idMaterial) {
+        this.items = this.items.filter(item => item.idMaterial !== idMaterial);
+        this.calcularTotal();
+        this.guardarCarritoLocal();
         this.actualizarContador();
+        return true;
+    }    // Vaciar completamente el carrito
+    async vaciarCarrito() {
+        try {
+            const response = await fetch(this.contextPath + '/carrito-server?action=vaciar', {
+                method: 'POST'
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success) {
+                    this.items = [];
+                    this.cantidadTotal = 0;
+                    this.total = 0;
+                    this.actualizarContador();
+                    // Actualizar inmediatamente la interfaz del modal
+                    this.actualizarModalCarrito();
+                    return true;
+                }
+            } else if (response.status === 401) {
+                const result = this.vaciarCarritoLocal();
+                // Actualizar interfaz para modo local también
+                this.actualizarModalCarrito();
+                return result;
+            }
+        } catch (error) {
+            console.error('Error al vaciar carrito:', error);
+            const result = this.vaciarCarritoLocal();
+            // Actualizar interfaz en caso de error también
+            this.actualizarModalCarrito();
+            return result;
+        }
+        return false;
     }
 
-    // Vaciar completamente el carrito
-    vaciarCarrito() {
+    // Vaciar carrito localmente
+    vaciarCarritoLocal() {
         this.items = [];
-        this.guardarCarrito();
+        this.calcularTotal();
+        this.guardarCarritoLocal();
         this.actualizarContador();
+        return true;
     }
 
-    // Guardar el carrito en localStorage
-    guardarCarrito() {
+    // Guardar el carrito en localStorage (solo para usuarios no autenticados)
+    guardarCarritoLocal() {
         localStorage.setItem('carrito', JSON.stringify(this.items));
-        // Calcular totales
         this.calcularTotal();
     }
 
     // Calcular el total del carrito
     calcularTotal() {
-        this.total = this.items.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
+        this.total = this.items.reduce((sum, item) => {
+            const precio = typeof item.precio === 'string' ? parseFloat(item.precio) : item.precio;
+            return sum + (precio * item.cantidad);
+        }, 0);
         this.cantidadTotal = this.items.reduce((sum, item) => sum + item.cantidad, 0);
-    }
-
-    // Actualizar el contador visual del carrito
+    }    // Actualizar el contador visual del carrito
     actualizarContador() {
-        this.calcularTotal();
+        console.log('Actualizando contador del carrito. Cantidad total:', this.cantidadTotal);
+        const contadores = document.querySelectorAll('.cart-count, #cart-count, .carrito-contador, .cart-badge-visible');
+        console.log('Contadores encontrados:', contadores.length);
         
-        // Actualizar los badges del carrito
-        const badges = document.querySelectorAll('.cart-badge-visible');
-        badges.forEach(badge => {
-            badge.textContent = this.cantidadTotal.toString();
-            
-            // Mostrar u ocultar el badge según si hay items
-            if (this.cantidadTotal > 0) {
-                badge.style.display = 'flex';
-            } else {
-                badge.style.display = 'none';
+        contadores.forEach((contador, index) => {
+            if (contador) {
+                console.log(`Actualizando contador ${index}:`, contador.className, 'Valor anterior:', contador.textContent);
+                contador.textContent = this.cantidadTotal;
+                contador.style.display = this.cantidadTotal > 0 ? 'flex' : 'flex'; // Siempre visible
+                console.log(`Contador ${index} actualizado a:`, contador.textContent);
             }
         });
     }
 
-    // Mostrar una notificación temporal
-    mostrarNotificacion(mensaje, tipo = 'success') {
-        // Crear el elemento de notificación
-        const notificacion = document.createElement('div');
-        notificacion.className = `toast toast-${tipo}`;
-        notificacion.innerHTML = `
-            <div class="toast-header">
-                <i class="fas fa-shopping-cart me-2"></i>
-                <strong class="me-auto">MuestraYa</strong>
-                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-            </div>
-            <div class="toast-body">
-                ${mensaje}
-            </div>
-        `;
+    // Mostrar modal del carrito
+    mostrarModalCarrito() {
+        // Verificar si ya existe un modal
+        let modal = document.getElementById('carritoModal');
         
-        // Añadir al DOM
-        const toastContainer = document.querySelector('.toast-container');
-        if (!toastContainer) {
-            const container = document.createElement('div');
-            container.className = 'toast-container position-fixed bottom-0 end-0 p-3';
-            document.body.appendChild(container);
-            container.appendChild(notificacion);
-        } else {
-            toastContainer.appendChild(notificacion);
+        if (!modal) {
+            // Crear el modal si no existe
+            modal = document.createElement('div');
+            modal.id = 'carritoModal';
+            modal.className = 'modal fade';
+            modal.setAttribute('tabindex', '-1');
+            modal.innerHTML = this.generarHTMLModal();
+            document.body.appendChild(modal);
         }
-        
-        // Mostrar con Bootstrap
-        const toast = new bootstrap.Toast(notificacion, {
-            autohide: true,
-            delay: 3000
-        });
-        toast.show();
-        
-        // Eliminar después de ocultarse
-        notificacion.addEventListener('hidden.bs.toast', () => {
-            notificacion.remove();
-        });
+
+        // Actualizar contenido del modal
+        this.actualizarModalCarrito();
+
+        // Mostrar el modal usando Bootstrap
+        const bsModal = new bootstrap.Modal(modal);
+        bsModal.show();
+
+        // Configurar eventos del modal
+        this.configurarEventosModal(modal);
     }
 
-    // Mostrar el modal del carrito
-    mostrarModalCarrito() {
-        // Eliminar modal anterior si existe
-        const modalAnterior = document.getElementById('carritoModal');
-        if (modalAnterior) {
-            modalAnterior.remove();
-        }
-        
-        // Crear el modal
-        const modalHTML = `
-        <div class="modal fade" id="carritoModal" tabindex="-1" aria-labelledby="carritoModalLabel" aria-hidden="true">
+    // Generar HTML del modal
+    generarHTMLModal() {
+        return `
             <div class="modal-dialog modal-lg">
                 <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="carritoModalLabel">
+                    <div class="modal-header bg-primary text-white">
+                        <h5 class="modal-title">
                             <i class="fas fa-shopping-cart me-2"></i>Tu Carrito de Compras
                         </h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                     </div>
-                    <div class="modal-body">
-                        ${this.renderizarItemsCarrito()}
-                    </div>
-                    <div class="modal-footer justify-content-between">
-                        <div>
-                            <button type="button" class="btn btn-outline-danger" id="vaciarCarrito">
-                                <i class="fas fa-trash me-1"></i> Vaciar Carrito
-                            </button>
-                        </div>
-                        <div class="d-flex flex-column align-items-end">
-                            <h5 class="mb-3">Total: $${this.total.toFixed(2)}</h5>
-                            <div>
-                                <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Seguir Comprando</button>
-                                <button type="button" class="btn btn-primary" id="finalizarCompra">Finalizar Compra</button>
-                            </div>
-                        </div>
+                    <div class="modal-body" id="carritoModalBody">
+                        <!-- Contenido dinámico del carrito -->
                     </div>
                 </div>
             </div>
-        </div>
         `;
-        
-        // Añadir al DOM
-        document.body.insertAdjacentHTML('beforeend', modalHTML);
-        
-        // Mostrar el modal
-        const modal = new bootstrap.Modal(document.getElementById('carritoModal'));
-        modal.show();
-        
-        // Añadir eventos a los botones del modal
-        this.inicializarEventosModal();
     }
 
-    // Renderizar los items del carrito para el modal
-    renderizarItemsCarrito() {
-        if (this.items.length === 0) {
-            return `
-                <div class="text-center py-5">
-                    <i class="fas fa-shopping-cart fa-4x mb-3 text-muted"></i>
-                    <h4>Tu carrito está vacío</h4>
-                    <p class="text-muted">Añade productos para empezar a comprar</p>
-                </div>
-            `;
-        }
-        
-        let html = `
-            <div class="table-responsive">
-                <table class="table table-hover align-middle">
-                    <thead>
-                        <tr>
-                            <th scope="col">Producto</th>
-                            <th scope="col" class="text-center">Precio</th>
-                            <th scope="col" class="text-center">Cantidad</th>
-                            <th scope="col" class="text-end">Subtotal</th>
-                            <th scope="col"></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-        `;
-        
-        this.items.forEach(item => {
-            html += `
-                <tr data-id="${item.id}">
-                    <td>
-                        <div class="d-flex align-items-center">
-                            <img src="${item.imagen}" alt="${item.nombre}" class="cart-item-img me-3" style="width: 50px; height: 50px; object-fit: cover;">
-                            <div>
-                                <h6 class="mb-0">${item.nombre}</h6>
-                            </div>
-                        </div>
-                    </td>
-                    <td class="text-center">$${item.precio.toFixed(2)}</td>
-                    <td class="text-center">
-                        <div class="input-group input-group-sm quantity-selector" style="width: 120px;">
-                            <button class="btn btn-outline-secondary btn-decrease" type="button">-</button>
-                            <input type="number" class="form-control text-center item-quantity" value="${item.cantidad}" min="1">
-                            <button class="btn btn-outline-secondary btn-increase" type="button">+</button>
-                        </div>
-                    </td>
-                    <td class="text-end fw-bold">$${(item.precio * item.cantidad).toFixed(2)}</td>
-                    <td class="text-end">
-                        <button class="btn btn-sm btn-outline-danger btn-remove" title="Eliminar">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </td>
-                </tr>
-            `;
-        });
-        
-        html += `
-                    </tbody>
-                </table>
-            </div>
-        `;
-        
-        return html;
-    }
-
-    // Inicializar eventos del modal del carrito
-    inicializarEventosModal() {
-        const modal = document.getElementById('carritoModal');
-        if (!modal) return;
-        
-        // Botones de aumentar cantidad
-        modal.querySelectorAll('.btn-increase').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const row = e.target.closest('tr');
-                const id = row.dataset.id;
-                const inputCantidad = row.querySelector('.item-quantity');
-                const cantidadActual = parseInt(inputCantidad.value);
-                inputCantidad.value = cantidadActual + 1;
-                this.actualizarCantidad(id, cantidadActual + 1);
-                this.actualizarModalCarrito();
-            });
-        });
-        
-        // Botones de disminuir cantidad
-        modal.querySelectorAll('.btn-decrease').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const row = e.target.closest('tr');
-                const id = row.dataset.id;
-                const inputCantidad = row.querySelector('.item-quantity');
-                const cantidadActual = parseInt(inputCantidad.value);
-                if (cantidadActual > 1) {
-                    inputCantidad.value = cantidadActual - 1;
-                    this.actualizarCantidad(id, cantidadActual - 1);
-                    this.actualizarModalCarrito();
-                }
-            });
-        });
-        
-        // Inputs de cantidad
-        modal.querySelectorAll('.item-quantity').forEach(input => {
-            input.addEventListener('change', (e) => {
-                const row = e.target.closest('tr');
-                const id = row.dataset.id;
-                let cantidad = parseInt(e.target.value);
-                if (isNaN(cantidad) || cantidad < 1) {
-                    cantidad = 1;
-                    e.target.value = 1;
-                }
-                this.actualizarCantidad(id, cantidad);
-                this.actualizarModalCarrito();
-            });
-        });
-        
-        // Botones de eliminar item
-        modal.querySelectorAll('.btn-remove').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const row = e.target.closest('tr');
-                const id = row.dataset.id;
-                this.eliminarItem(id);
-                this.actualizarModalCarrito();
-            });
-        });
-        
-        // Botón de vaciar carrito
-        const btnVaciar = modal.querySelector('#vaciarCarrito');
-        if (btnVaciar) {
-            btnVaciar.addEventListener('click', () => {
-                if (confirm('¿Estás seguro de que deseas vaciar el carrito?')) {
-                    this.vaciarCarrito();
-                    this.actualizarModalCarrito();
-                }
-            });
-        }
-        
-        // Botón de finalizar compra
-        const btnFinalizar = modal.querySelector('#finalizarCompra');
-        if (btnFinalizar) {
-            btnFinalizar.addEventListener('click', () => {
-                this.finalizarCompra();
-            });
-        }
-    }
-
-    // Actualizar el contenido del modal del carrito
+    // Actualizar contenido del modal
     actualizarModalCarrito() {
-        const modalBody = document.querySelector('#carritoModal .modal-body');
-        if (modalBody) {
-            modalBody.innerHTML = this.renderizarItemsCarrito();
+        const modalBody = document.getElementById('carritoModalBody');
+        if (!modalBody) return;
+
+        if (this.items.length === 0) {
+            modalBody.innerHTML = `
+                <div class="text-center py-5">
+                    <i class="fas fa-shopping-cart text-muted" style="font-size: 4rem;"></i>
+                    <h4 class="text-muted mt-3">Tu carrito está vacío</h4>
+                    <p class="text-muted">Agrega algunos productos para empezar a comprar</p>
+                </div>
+            `;
+        } else {
+            modalBody.innerHTML = `
+                <div class="carrito-items">
+                    ${this.items.map(item => this.generarItemHTML(item)).join('')}
+                </div>
+                <hr>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5>Total: <span class="text-primary">$${this.total.toFixed(2)}</span></h5>
+                    <span class="text-muted">${this.cantidadTotal} producto${this.cantidadTotal !== 1 ? 's' : ''}</span>
+                </div>                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <button type="button" class="btn btn-outline-danger" onclick="carrito.mostrarModalVaciarCarrito()">
+                        <i class="fas fa-trash me-1"></i> Vaciar Carrito
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary me-md-2" data-bs-dismiss="modal">
+                        <i class="fas fa-arrow-left me-1"></i> Seguir Comprando
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="carrito.finalizarCompra()">
+                        <i class="fas fa-credit-card me-1"></i> Finalizar Compra
+                    </button>                </div>
+            `;
         }
         
-        const modalFooter = document.querySelector('#carritoModal .modal-footer h5');
-        if (modalFooter) {
-            modalFooter.textContent = `Total: $${this.total.toFixed(2)}`;
+        // Reconfigurar eventos como medida de seguridad adicional
+        const modal = document.getElementById('carritoModal');
+        if (modal) {
+            this.configurarEventosModal(modal);
         }
-        
-        // Reinicializar eventos después de actualizar el contenido
-        this.inicializarEventosModal();
     }
 
-    // Finalizar el proceso de compra
+    // Generar HTML para un item del carrito
+    generarItemHTML(item) {
+        const precio = typeof item.precio === 'string' ? parseFloat(item.precio) : item.precio;
+        const subtotal = precio * item.cantidad;
+        
+        return `
+            <div class="carrito-item d-flex align-items-center py-3 border-bottom" data-id="${item.idMaterial}">
+                <img src="${this.contextPath}/image/${item.imagen || 'default.jpg'}" 
+                     alt="${item.nombre}" class="me-3" 
+                     style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px;">
+                <div class="flex-grow-1">
+                    <h6 class="mb-1">${item.nombre}</h6>
+                    <small class="text-muted">$${precio.toFixed(2)} c/u</small>
+                </div>
+                <div class="d-flex align-items-center me-3">
+                    <button class="btn btn-sm btn-outline-secondary me-2" onclick="carrito.actualizarCantidad('${item.idMaterial}', ${item.cantidad - 1})">
+                        <i class="fas fa-minus"></i>
+                    </button>
+                    <span class="mx-2 fw-bold">${item.cantidad}</span>
+                    <button class="btn btn-sm btn-outline-secondary ms-2" onclick="carrito.actualizarCantidad('${item.idMaterial}', ${item.cantidad + 1})">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </div>
+                <div class="text-end me-3">
+                    <div class="fw-bold">$${subtotal.toFixed(2)}</div>
+                </div>
+                <button class="btn btn-sm btn-outline-danger" onclick="carrito.eliminarItem('${item.idMaterial}')">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+        `;
+    }    // Configurar eventos del modal
+    configurarEventosModal(modal) {
+        // Los botones principales ahora usan onclick directamente en el HTML
+        // Esta función se mantiene para posibles eventos adicionales futuros
+        console.log('Modal de carrito configurado');
+    }
+
+    // Finalizar compra
     finalizarCompra() {
-        // Si el usuario no está logueado, redirigir al login
-        if (!this.usuarioLogueado()) {
-            if (confirm('Debes iniciar sesión para finalizar la compra. ¿Deseas ir a la página de login?')) {
-                window.location.href = window.location.origin + '/MuestraYa/login';
-            }
-            return;
-        }
-        
-        // Si el carrito está vacío, mostrar mensaje
         if (this.items.length === 0) {
-            alert('No hay productos en el carrito.');
+            alert('Tu carrito está vacío');
             return;
         }
-        
+
         // Aquí se implementaría el proceso de compra
-        // Por ahora, solo mostramos confirmación y vaciamos el carrito
         alert('¡Gracias por tu compra! Tu orden ha sido procesada.');
         this.vaciarCarrito();
         
@@ -413,9 +442,280 @@ class Carrito {
         }
     }
 
+    // Mostrar modal personalizado para vaciar carrito
+    mostrarModalVaciarCarrito() {
+        // Verificar si ya existe un modal activo
+        const existingModal = document.querySelector('.modal-overlay-carrito');
+        if (existingModal) {
+            return;
+        }
+        
+        const carritoItems = this.items.length;
+        const totalCarrito = this.total;
+        
+        // Crear el modal personalizado
+        const modalOverlay = document.createElement('div');
+        modalOverlay.className = 'modal-overlay-carrito';
+        modalOverlay.innerHTML = `
+            <div class="modal-content-carrito">
+                <div class="modal-header-carrito">
+                    <i class="fas fa-shopping-cart"></i>
+                    <h3>¿Vaciar Carrito?</h3>
+                </div>
+                <div class="modal-body-carrito">
+                    <p>¿Estás seguro de que deseas vaciar tu carrito de compras?</p>
+                    <div class="carrito-info">
+                        <div class="info-item">
+                            <i class="fas fa-box"></i>
+                            <span>${carritoItems} producto${carritoItems !== 1 ? 's' : ''}</span>
+                        </div>
+                        <div class="info-item">
+                            <i class="fas fa-dollar-sign"></i>
+                            <span>$${totalCarrito.toFixed(2)}</span>
+                        </div>
+                    </div>
+                    <small class="modal-warning">Esta acción eliminará todos los productos de tu carrito.</small>
+                </div>
+                <div class="modal-footer-carrito">
+                    <button class="btn-cancelar-carrito" onclick="cerrarModalCarrito()">
+                        <i class="fas fa-times"></i> Cancelar
+                    </button>
+                    <button class="btn-vaciar-carrito" onclick="confirmarVaciarCarrito()">
+                        <i class="fas fa-trash"></i> Vaciar Carrito
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(modalOverlay);
+        
+        // Agregar estilos si no existen
+        if (!document.getElementById('modal-carrito-styles')) {
+            const style = document.createElement('style');
+            style.id = 'modal-carrito-styles';
+            style.textContent = `
+                .modal-overlay-carrito {
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background-color: rgba(0, 0, 0, 0.6);
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    z-index: 10001;
+                    opacity: 0;
+                    visibility: hidden;
+                    transition: all 0.3s ease;
+                }
+                
+                .modal-overlay-carrito.show {
+                    opacity: 1;
+                    visibility: visible;
+                }
+                
+                .modal-content-carrito {
+                    background: white;
+                    border-radius: 15px;
+                    box-shadow: 0 25px 70px rgba(0, 0, 0, 0.3);
+                    max-width: 480px;
+                    width: 90%;
+                    overflow: hidden;
+                    transform: scale(0.8) translateY(-30px);
+                    transition: all 0.3s ease;
+                }
+                
+                .modal-overlay-carrito.show .modal-content-carrito {
+                    transform: scale(1) translateY(0);
+                }
+                
+                .modal-header-carrito {
+                    background: linear-gradient(135deg, #007bff, #0056b3);
+                    color: white;
+                    padding: 25px;
+                    text-align: center;
+                    position: relative;
+                }
+                
+                .modal-header-carrito i {
+                    font-size: 3rem;
+                    margin-bottom: 15px;
+                    display: block;
+                    animation: bounce 2s infinite;
+                }
+                
+                .modal-header-carrito h3 {
+                    margin: 0;
+                    font-size: 1.4rem;
+                    font-weight: 600;
+                }
+                
+                .modal-body-carrito {
+                    padding: 30px;
+                    text-align: center;
+                }
+                
+                .modal-body-carrito p {
+                    margin: 0 0 20px 0;
+                    font-size: 1.1rem;
+                    color: #333;
+                    line-height: 1.5;
+                }
+                
+                .carrito-info {
+                    background: #f8f9fa;
+                    padding: 20px;
+                    border-radius: 10px;
+                    margin: 20px 0;
+                    display: flex;
+                    justify-content: space-around;
+                    align-items: center;
+                }
+                
+                .info-item {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    gap: 8px;
+                }
+                
+                .info-item i {
+                    font-size: 1.5rem;
+                    color: #007bff;
+                }
+                
+                .info-item span {
+                    font-weight: 600;
+                    color: #333;
+                }
+                
+                .modal-warning {
+                    color: #dc3545;
+                    font-style: italic;
+                    display: block;
+                    margin-top: 15px;
+                }
+                
+                .modal-footer-carrito {
+                    padding: 25px;
+                    display: flex;
+                    gap: 15px;
+                    justify-content: center;
+                    background: #f8f9fa;
+                }
+                
+                .modal-footer-carrito button {
+                    padding: 12px 25px;
+                    border: none;
+                    border-radius: 8px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    transition: all 0.2s ease;
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    font-size: 0.95rem;
+                    min-width: 130px;
+                    justify-content: center;
+                }
+                
+                .btn-cancelar-carrito {
+                    background: #6c757d;
+                    color: white;
+                }
+                
+                .btn-cancelar-carrito:hover {
+                    background: #5a6268;
+                    transform: translateY(-2px);
+                }
+                
+                .btn-vaciar-carrito {
+                    background: #dc3545;
+                    color: white;
+                }
+                
+                .btn-vaciar-carrito:hover {
+                    background: #c82333;
+                    transform: translateY(-2px);
+                }
+                
+                @keyframes bounce {
+                    0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+                    40% { transform: translateY(-10px); }
+                    60% { transform: translateY(-5px); }
+                }
+                
+                @media (max-width: 480px) {
+                    .modal-content-carrito {
+                        width: 95%;
+                        margin: 20px;
+                    }
+                    
+                    .carrito-info {
+                        flex-direction: column;
+                        gap: 15px;
+                    }
+                    
+                    .modal-footer-carrito {
+                        flex-direction: column;
+                    }
+                    
+                    .modal-footer-carrito button {
+                        width: 100%;
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+        
+        // Mostrar modal con animación
+        setTimeout(() => modalOverlay.classList.add('show'), 10);
+        
+        // Funciones globales para el modal
+        window.cerrarModalCarrito = () => {
+            modalOverlay.classList.remove('show');
+            setTimeout(() => {
+                if (document.body.contains(modalOverlay)) {
+                    document.body.removeChild(modalOverlay);
+                }
+                if (window.cerrarModalCarrito) delete window.cerrarModalCarrito;
+                if (window.confirmarVaciarCarrito) delete window.confirmarVaciarCarrito;
+            }, 300);
+        };
+        
+        window.confirmarVaciarCarrito = async () => {
+            const success = await this.vaciarCarrito();
+            if (success) {
+                this.actualizarModalCarrito();
+                window.cerrarModalCarrito();
+                
+                // Mostrar notificación de éxito
+                if (typeof mostrarNotificacion === 'function') {
+                    mostrarNotificacion('Carrito vaciado correctamente', 'success');
+                }
+            }
+        };
+        
+        // Cerrar con ESC
+        const handleEsc = (e) => {
+            if (e.key === 'Escape') {
+                window.cerrarModalCarrito();
+                document.removeEventListener('keydown', handleEsc);
+            }
+        };
+        document.addEventListener('keydown', handleEsc);
+        
+        // Cerrar al hacer click fuera del modal
+        modalOverlay.addEventListener('click', (e) => {
+            if (e.target === modalOverlay) {
+                window.cerrarModalCarrito();
+            }
+        });
+    }
+
     // Verificar si el usuario está logueado
     usuarioLogueado() {
-        // Verificar si existe el dropdown de usuario o el botón de login
         return document.querySelector('#userDropdown') !== null;
     }
 }
@@ -428,7 +728,6 @@ class Navbar {
     }
     
     inicializarMenu() {
-        // Toggle para menú móvil
         const menuToggle = document.querySelector('.navbar-toggler');
         const navbarCollapse = document.querySelector('.navbar-collapse');
         
@@ -438,7 +737,6 @@ class Navbar {
             });
         }
         
-        // Botón de cerrar menú móvil
         const closeButton = document.querySelector('.mobile-menu-close');
         if (closeButton) {
             closeButton.addEventListener('click', () => {
@@ -446,33 +744,16 @@ class Navbar {
             });
         }
         
-        // Evitar que los clics dentro del menú cierren el menú
         if (navbarCollapse) {
             navbarCollapse.addEventListener('click', (e) => {
-                // Solo detenemos la propagación si no es un enlace o un botón que cierra el menú
                 if (!e.target.closest('[data-bs-toggle="collapse"]') && !e.target.closest('.mobile-menu-close')) {
                     e.stopPropagation();
                 }
             });
         }
-        
-        // Cerrar el menú cuando se hace clic en un enlace
-        const navLinks = document.querySelectorAll('.navbar-collapse .nav-link');
-        navLinks.forEach(link => {
-            if (!link.classList.contains('dropdown-toggle')) {
-                link.addEventListener('click', () => {
-                    const bsCollapse = bootstrap.Collapse.getInstance(navbarCollapse);
-                    if (bsCollapse) {
-                        bsCollapse.hide();
-                    }
-                    document.body.classList.remove('menu-open');
-                });
-            }
-        });
     }
     
     hacerNavbarFijo() {
-        // Hacer que la navbar sea fija al hacer scroll
         const navbar = document.querySelector('.navbar');
         
         if (navbar) {
@@ -496,6 +777,14 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Inicializar el sistema de navegación
     window.navbar = new Navbar();
+    
+    // Forzar actualización del contador después de un breve retraso
+    setTimeout(() => {
+        if (window.carrito) {
+            console.log('Forzando actualización del contador del carrito...');
+            window.carrito.actualizarContador();
+        }
+    }, 1000);
     
     console.log('Sistema de carrito y navbar inicializado correctamente.');
 });
