@@ -198,9 +198,43 @@
             .add-to-cart-btn:hover {
                 background-color: #0069d9;
             }
-            
-            .add-to-cart-btn i {
+              .add-to-cart-btn i {
                 margin-right: 10px;
+            }
+            
+            .favorite-btn-detail {
+                background: linear-gradient(135deg, #e91e63, #c2185b);
+                color: white;
+                border: none;
+                padding: 12px 20px;
+                border-radius: 30px;
+                font-size: 1rem;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
+                width: 100%;
+                margin-bottom: 15px;
+            }
+            
+            .favorite-btn-detail:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 25px rgba(233, 30, 99, 0.3);
+            }
+            
+            .favorite-btn-detail.active {
+                background: linear-gradient(135deg, #ff4081, #e91e63);
+            }
+            
+            .favorite-btn-detail.active .favorite-text:after {
+                content: 'Quitar de favoritos';
+            }
+            
+            .product-actions-section {
+                margin-top: 20px;
             }
             
             .related-products {
@@ -342,9 +376,17 @@
                             </div>
                         </c:if>
                     </div>
-                    
-                    <!-- Sección de agregar al carrito -->
-                    <div class="add-to-cart-section">
+                      <!-- Sección de acciones de producto -->
+                    <div class="product-actions-section">
+                        <!-- Botón de favoritos -->
+                        <c:if test="${sessionScope.usuario != null}">
+                            <button class="favorite-btn-detail" id="favoriteBtn" onclick="toggleFavorito('${material.idMaterial}', this)">
+                                <i class="far fa-heart"></i>
+                                <span class="favorite-text">Agregar a favoritos</span>
+                            </button>
+                        </c:if>
+                        
+                        <!-- Selector de cantidad -->
                         <div class="quantity-selector">
                             <span>Cantidad:</span>
                             <button class="quantity-btn" id="decrease">-</button>
@@ -352,6 +394,7 @@
                             <button class="quantity-btn" id="increase">+</button>
                         </div>
                         
+                        <!-- Botón de agregar al carrito -->
                         <button class="add-to-cart-btn" id="addToCart" ${material.stock <= 0 ? 'disabled' : ''}>
                             <i class="fas fa-shopping-cart"></i> Agregar al carrito
                         </button>
@@ -393,60 +436,153 @@
                     </c:forEach>
                 </div>
             </div>
-        </section>
-
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        </section>        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <script>
+            // Establecer contextPath global
+            window.contextPath = '${pageContext.request.contextPath}';
+        </script>
+        <script src="${pageContext.request.contextPath}/recursos/js/navbar.js"></script>
         <script>
             document.addEventListener('DOMContentLoaded', function() {                const quantityInput = document.getElementById('quantity');
                 const decreaseBtn = document.getElementById('decrease');
                 const increaseBtn = document.getElementById('increase');
                 const addToCartBtn = document.getElementById('addToCart');
+                const favoriteBtn = document.getElementById('favoriteBtn');
                 const maxStock = <c:out value="${material.stock}"/>;
                 
                 // Manejar disminución de cantidad
-                decreaseBtn.addEventListener('click', function() {
-                    let currentValue = parseInt(quantityInput.value);
-                    if (currentValue > 1) {
-                        quantityInput.value = currentValue - 1;
-                    }
-                });
+                if (decreaseBtn) {
+                    decreaseBtn.addEventListener('click', function() {
+                        let currentValue = parseInt(quantityInput.value);
+                        if (currentValue > 1) {
+                            quantityInput.value = currentValue - 1;
+                        }
+                    });
+                }
                 
                 // Manejar aumento de cantidad
-                increaseBtn.addEventListener('click', function() {
-                    let currentValue = parseInt(quantityInput.value);
-                    if (currentValue < maxStock) {
-                        quantityInput.value = currentValue + 1;
-                    }
-                });
+                if (increaseBtn) {
+                    increaseBtn.addEventListener('click', function() {
+                        let currentValue = parseInt(quantityInput.value);
+                        if (currentValue < maxStock) {
+                            quantityInput.value = currentValue + 1;
+                        }
+                    });
+                }
                 
                 // Validar entrada manual
-                quantityInput.addEventListener('change', function() {
-                    let currentValue = parseInt(quantityInput.value);
-                    if (isNaN(currentValue) || currentValue < 1) {
-                        quantityInput.value = 1;
-                    } else if (currentValue > maxStock) {
-                        quantityInput.value = maxStock;
-                    }
-                });
+                if (quantityInput) {
+                    quantityInput.addEventListener('change', function() {
+                        let currentValue = parseInt(quantityInput.value);
+                        if (isNaN(currentValue) || currentValue < 1) {
+                            quantityInput.value = 1;
+                        } else if (currentValue > maxStock) {
+                            quantityInput.value = maxStock;
+                        }
+                    });
+                }
                 
-                // Agregar al carrito
-                addToCartBtn.addEventListener('click', function() {                    const quantity = parseInt(quantityInput.value);
-                    const productId = '<c:out value="${material.idMaterial}"/>';
-                    const productName = '<c:out value="${material.nombre}"/>';
-                    const productPrice = <c:out value="${material.precio}"/>;
-                    
-                    // Aquí iría la lógica para agregar al carrito
-                    // Por ahora, solo mostramos un mensaje
-                    alert(`Agregaste ${quantity} unidad(es) de ${productName} al carrito`);
-                    
-                    // Actualizar el contador del carrito (implementación básica)
-                    const cartBadge = document.querySelector('.cart-badge-visible');
-                    if (cartBadge) {
-                        let currentCount = parseInt(cartBadge.textContent);
-                        cartBadge.textContent = currentCount + quantity;
-                    }
-                });
+                // Add to cart functionality (integrated with our cart system)
+                if (addToCartBtn) {
+                    addToCartBtn.addEventListener('click', function() {
+                        const quantity = parseInt(quantityInput.value);
+                        const productId = '${material.idMaterial}';
+                        const productName = '${material.nombre}';
+                        const productPrice = <c:out value="${material.precio}"/>;
+                        const productImage = '${material.imagen}';
+                        
+                        if (window.carrito) {
+                            window.carrito.agregarItem(productId, productName, productPrice, quantity, productImage)
+                                .then(success => {
+                                    if (success) {
+                                        mostrarNotificacion('¡Producto agregado al carrito!', 'success');
+                                    } else {
+                                        mostrarNotificacion('Error al agregar al carrito', 'error');
+                                    }
+                                });
+                        } else {
+                            mostrarNotificacion('Error: Sistema de carrito no disponible', 'error');
+                        }
+                    });
+                }
+                
+                // Load favorite status
+                if (favoriteBtn) {
+                    cargarEstadoFavorito('${material.idMaterial}');
+                }
             });
+            
+            // Function to toggle favorite
+            function toggleFavorito(idMaterial, button) {
+                fetch(window.contextPath + '/favoritos?action=toggle&idMaterial=' + idMaterial, {
+                    method: 'POST'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Update button visual state
+                        const icon = button.querySelector('i');
+                        const text = button.querySelector('.favorite-text');
+                        if (data.isFavorite) {
+                            button.classList.add('active');
+                            icon.className = 'fas fa-heart';
+                            text.textContent = 'Quitar de favoritos';
+                        } else {
+                            button.classList.remove('active');
+                            icon.className = 'far fa-heart';
+                            text.textContent = 'Agregar a favoritos';
+                        }
+                        
+                        mostrarNotificacion(data.message, 'success');
+                    } else {
+                        mostrarNotificacion(data.message, 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    mostrarNotificacion('Error al actualizar favoritos', 'error');
+                });
+            }
+            
+            // Function to load favorite status
+            function cargarEstadoFavorito(idMaterial) {
+                const favoriteBtn = document.getElementById('favoriteBtn');
+                if (!favoriteBtn) return;
+                
+                fetch(window.contextPath + '/favoritos?action=check&idMaterial=' + idMaterial)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.isFavorite) {
+                            favoriteBtn.classList.add('active');
+                            const icon = favoriteBtn.querySelector('i');
+                            const text = favoriteBtn.querySelector('.favorite-text');
+                            icon.className = 'fas fa-heart';
+                            text.textContent = 'Quitar de favoritos';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error al verificar favorito:', error);
+                    });
+            }
+              // Function to show notifications
+            function mostrarNotificacion(mensaje, tipo) {
+                // Create notification element
+                const notificacion = document.createElement('div');
+                notificacion.className = 'alert alert-' + (tipo === 'success' ? 'success' : 'danger') + ' alert-dismissible fade show position-fixed';
+                notificacion.style.cssText = 'top: 20px; right: 20px; z-index: 1050; min-width: 300px;';
+                notificacion.innerHTML = 
+                    mensaje +
+                    '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>';
+                
+                document.body.appendChild(notificacion);
+                
+                // Auto dismiss after 3 seconds
+                setTimeout(function() {
+                    if (notificacion.parentNode) {
+                        notificacion.remove();
+                    }
+                }, 3000);
+            }
         </script>
     </body>
 </html>
