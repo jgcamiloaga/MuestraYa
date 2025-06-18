@@ -93,9 +93,61 @@
                 z-index: 9999 !important;
                 visibility: visible !important;
                 opacity: 1 !important;
-            }
-              .nav-item a[title="Carrito de compras"] {
+            }              .nav-item a[title="Carrito de compras"] {
                 position: relative !important;
+            }
+            
+            /* Estilos para botones de acción en tarjetas de productos */
+            .action-buttons {
+                display: flex;
+                gap: 8px;
+                align-items: center;
+            }
+            
+            .favorite-btn {
+                width: 40px;
+                height: 38px;
+                border-radius: 8px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: all 0.3s ease;
+                border: 1px solid #dc3545;
+                background: transparent;
+                color: #dc3545;
+            }
+            
+            .favorite-btn:hover {
+                background: #dc3545;
+                color: white;
+                transform: translateY(-1px);
+            }
+            
+            .favorite-btn.active {
+                background: #dc3545;
+                color: white;
+                border-color: #dc3545;
+            }
+            
+            .favorite-btn.active i {
+                animation: heartBeat 0.6s ease-in-out;
+            }
+            
+            @keyframes heartBeat {
+                0% { transform: scale(1); }
+                25% { transform: scale(1.2); }
+                50% { transform: scale(1); }
+                75% { transform: scale(1.1); }
+                100% { transform: scale(1); }
+            }
+            
+            .btn-add-to-cart {
+                transition: all 0.3s ease;
+            }
+            
+            .btn-add-to-cart:hover {
+                transform: translateY(-1px);
+                box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
             }
         </style>
     </head>
@@ -421,9 +473,18 @@
                                                 <span class="badge bg-secondary">${material.idMaterial}</span>
                                                 <a href="${pageContext.request.contextPath}/products?action=detail&id=${material.idMaterial}" class="btn btn-outline-primary btn-sm">Ver detalles</a>
                                             </div>
-                                            <button class="btn btn-primary w-100 btn-add-to-cart" data-id="${material.idMaterial}">
-                                                <i class="fas fa-shopping-cart me-1"></i> Añadir al carrito
-                                            </button>
+                                            
+                                            <!-- Botones de acción -->
+                                            <div class="action-buttons">
+                                                <c:if test="${sessionScope.usuario != null}">
+                                                    <button class="btn btn-outline-danger favorite-btn" onclick="toggleFavorito('${material.idMaterial}', this)" title="Agregar a favoritos">
+                                                        <i class="far fa-heart"></i>
+                                                    </button>
+                                                </c:if>
+                                                <button class="btn btn-primary flex-grow-1 btn-add-to-cart" onclick="agregarAlCarrito('${material.idMaterial}', '${material.nombre}', '${material.precio}')">
+                                                    <i class="fas fa-shopping-cart me-1"></i> Añadir al carrito
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -537,12 +598,148 @@
         </footer>
 
         <!-- Bootstrap JS -->
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-        <!-- Scripts personalizados -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>        <!-- Scripts personalizados -->
+        <script>
+            // Establecer contextPath global
+            window.contextPath = '${pageContext.request.contextPath}';
+        </script>
         <script src="${pageContext.request.contextPath}/recursos/js/navbar.js"></script>
         
         <!-- Contenedor para notificaciones toast -->
         <div class="toast-container position-fixed bottom-0 end-0 p-3"></div>
+        
+        <!-- Script para funcionalidades de favoritos y carrito en index -->
+        <script>
+            // Función para toggle favorito
+            function toggleFavorito(idMaterial, button) {
+                fetch(window.contextPath + '/favoritos?action=toggle&idMaterial=' + idMaterial, {
+                    method: 'POST'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Actualizar estado visual del botón
+                        const icon = button.querySelector('i');
+                        if (data.isFavorite) {
+                            button.classList.add('active');
+                            icon.className = 'fas fa-heart';
+                            button.title = 'Quitar de favoritos';
+                        } else {
+                            button.classList.remove('active');
+                            icon.className = 'far fa-heart';
+                            button.title = 'Agregar a favoritos';
+                        }
+                        
+                        mostrarNotificacion(data.message, 'success');
+                    } else {
+                        mostrarNotificacion(data.message, 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    mostrarNotificacion('Error al actualizar favoritos', 'error');
+                });
+            }
+            
+            // Función para agregar al carrito
+            function agregarAlCarrito(idMaterial, nombre, precio) {
+                if (window.carrito) {
+                    const precioNumerico = parseFloat(precio);
+                    window.carrito.agregarItem(idMaterial, nombre, precioNumerico, 1, 'default.jpg')
+                        .then(success => {
+                            if (success) {
+                                mostrarNotificacion('Producto agregado al carrito', 'success');
+                            } else {
+                                mostrarNotificacion('Error al agregar al carrito', 'error');
+                            }
+                        });
+                } else {
+                    mostrarNotificacion('Error: Sistema de carrito no disponible', 'error');
+                }
+            }
+            
+            // Función para cargar estado de favoritos
+            function cargarEstadoFavoritos() {
+                const botonesCorazon = document.querySelectorAll('.favorite-btn');
+                
+                botonesCorazon.forEach(button => {
+                    const onclick = button.getAttribute('onclick');
+                    if (onclick) {
+                        const match = onclick.match(/'([^']+)'/);
+                        if (match) {
+                            const idMaterial = match[1];
+                            
+                            fetch(window.contextPath + '/favoritos?action=check&idMaterial=' + idMaterial)
+                                .then(response => response.json())
+                                .then(data => {
+                                    if (data.isFavorite) {
+                                        button.classList.add('active');
+                                        const icon = button.querySelector('i');
+                                        icon.className = 'fas fa-heart';
+                                        button.title = 'Quitar de favoritos';
+                                    }
+                                })
+                                .catch(error => {
+                                    console.error('Error al verificar favorito:', error);
+                                });
+                        }
+                    }
+                });
+            }
+            
+            // Función para mostrar notificaciones
+            function mostrarNotificacion(mensaje, tipo) {
+                // Crear elemento de notificación
+                const notificacion = document.createElement('div');
+                notificacion.className = 'alert alert-' + (tipo === 'success' ? 'success' : 'danger') + ' alert-dismissible fade show position-fixed';
+                notificacion.style.cssText = 'top: 20px; right: 20px; z-index: 1050; min-width: 300px;';
+                notificacion.innerHTML = 
+                    mensaje +
+                    '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>';
+                
+                document.body.appendChild(notificacion);
+                
+                // Auto dismiss después de 3 segundos
+                setTimeout(function() {
+                    if (notificacion.parentNode) {
+                        notificacion.remove();
+                    }
+                }, 3000);
+            }
+              // Cargar estado de favoritos al cargar la página
+            document.addEventListener('DOMContentLoaded', function() {
+                // Cargar estado de favoritos si hay usuario logueado
+                if (document.querySelector('.favorite-btn')) {
+                    cargarEstadoFavoritos();
+                }
+                
+                // Debug del contador del carrito
+                setTimeout(function() {
+                    console.log('=== DEBUG CONTADOR CARRITO ===');
+                    const contadores = document.querySelectorAll('.cart-badge-visible');
+                    console.log('Contadores encontrados:', contadores.length);
+                    contadores.forEach((contador, index) => {
+                        console.log(`Contador ${index}:`, {
+                            element: contador,
+                            texto: contador.textContent,
+                            visible: contador.style.display,
+                            clases: contador.className
+                        });
+                    });
+                    
+                    // Verificar si el objeto carrito existe
+                    if (window.carrito) {
+                        console.log('Objeto carrito:', {
+                            cantidadTotal: window.carrito.cantidadTotal,
+                            items: window.carrito.items.length,
+                            total: window.carrito.total
+                        });
+                    } else {
+                        console.error('Objeto window.carrito no encontrado');
+                    }
+                }, 2000);
+            });
+        </script>
         
         <!-- Script de depuración para el badge del carrito -->
         <script>
