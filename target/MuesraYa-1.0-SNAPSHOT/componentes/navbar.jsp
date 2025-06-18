@@ -48,9 +48,8 @@
 
                 <!-- Iconos de acción rápida -->
                 <div class="mobile-menu-section">
-                    <h6 class="mobile-menu-section-title">Acciones rápidas</h6>
-                    <div class="mobile-action-icons">
-                        <a href="#" class="mobile-action-icon">
+                    <h6 class="mobile-menu-section-title">Acciones rápidas</h6>                    <div class="mobile-action-icons">
+                        <a href="${pageContext.request.contextPath}/favoritos" class="mobile-action-icon">
                             <i class="far fa-heart"></i>
                             <span>Favoritos</span>
                         </a>
@@ -185,21 +184,19 @@
             </div>
 
             <!-- Iconos y acciones para desktop -->
-            <ul class="navbar-nav nav-icons d-none d-lg-flex">
-                <!-- Favoritos (sin contador) -->
+            <ul class="navbar-nav nav-icons d-none d-lg-flex">                <!-- Favoritos con contador -->
                 <li class="nav-item">
-                    <a class="nav-link" href="#" title="Favoritos" aria-label="Ver favoritos">
+                    <a class="nav-link" href="${pageContext.request.contextPath}/favoritos" title="Favoritos" aria-label="Ver favoritos" style="position:relative;">
                         <div class="icon-container">
                             <i class="far fa-heart"></i>
+                            <span class="icon-badge" id="favorites-count" style="display: none;">0</span>
                         </div>
                     </a>
-                </li>
-
-                <!-- Carrito de compras con contador - Implementación directa -->
+                </li>                <!-- Carrito de compras con contador - Implementación directa -->
                 <li class="nav-item">
-                    <a class="nav-link" href="#" title="Carrito de compras" aria-label="Ver carrito de compras" style="position:relative;">
+                    <a class="nav-link cart-icon-container" href="#" title="Carrito de compras" aria-label="Ver carrito de compras">
                         <i class="fas fa-shopping-cart"></i>
-                        <span class="cart-badge-visible" style="position:absolute; top:-6px; right:-6px; background-color:#ff3b30; color:white; border-radius:50%; min-width:18px; height:18px; font-size:12px; font-weight:bold; display:flex; justify-content:center; align-items:center; box-shadow:0 0 0 2px white; z-index:9999;">0</span>
+                        <span class="cart-badge-visible">0</span>
                     </a>
                 </li>
 
@@ -228,6 +225,31 @@
                     </c:choose>
                 </li>
             </ul>
-        </div>
-    </div>
+        </div>    </div>
 </nav>
+
+<!-- CSS para el carrito badge -->
+<style>
+.cart-icon-container {
+    position: relative !important;
+}
+
+.cart-badge-visible {
+    position: absolute !important;
+    top: -8px !important;
+    right: -8px !important;
+    background-color: #ff3b30 !important;
+    color: white !important;
+    border-radius: 50% !important;
+    min-width: 20px !important;
+    height: 20px !important;
+    font-size: 11px !important;
+    font-weight: bold !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    box-shadow: 0 0 0 2px white !important;
+    z-index: 1000 !important;
+    line-height: 1 !important;
+}
+</style>
