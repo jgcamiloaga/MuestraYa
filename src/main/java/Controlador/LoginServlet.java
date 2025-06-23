@@ -28,9 +28,10 @@ public class LoginServlet extends HttpServlet {
             out.println("<body>");
             out.println("<h1>Servlet LoginServlet at " + request.getContextPath() + "</h1>");
             out.println("</body>");
-            out.println("</html>");
-        }
-    }    @Override
+            out.println("</html>");        }
+    }
+    
+    @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         // Si ya hay una sesión activa, redirigir según el rol del usuario
@@ -70,14 +71,15 @@ public class LoginServlet extends HttpServlet {
         try {
             // Buscar usuario por email
             Usuario usuario = usuarioDAO.buscarPorEmail(email);
-            
-            if (usuario != null) {
+              if (usuario != null) {
                 // Verificar si la contraseña ingresada coincide con el hash almacenado
                 if (PasswordUtil.checkPassword(password, usuario.getPassword())) {
-                    // Contraseña correcta, ya tenemos el objeto Usuario completo                    // Crear sesión y guardar el usuario
+                    // Contraseña correcta, ya tenemos el objeto Usuario completo
+                    // Crear sesión y guardar el usuario
                     HttpSession session = request.getSession();
                     session.setAttribute("usuario", usuario);
                     session.setAttribute("isLoggedIn", true);
+                    session.setAttribute("lastAccessTime", System.currentTimeMillis());
                     session.setMaxInactiveInterval(30 * 60); // 30 minutos
 
                     // Redirigir según el rol del usuario
@@ -86,9 +88,9 @@ public class LoginServlet extends HttpServlet {
                         response.sendRedirect(request.getContextPath() + "/materiales");
                     } else {
                         // Si es usuario normal, redirigir a la tienda (products)
-                        response.sendRedirect(request.getContextPath() + "/products");
-                    }
-                } else {                    // Contraseña incorrecta
+                        response.sendRedirect(request.getContextPath() + "/products");                    }
+                } else {
+                    // Contraseña incorrecta
                     request.setAttribute("errorMessage", "Email o contraseña incorrectos");
                     request.getRequestDispatcher("/vista/login.jsp").forward(request, response);
                 }
@@ -102,11 +104,9 @@ public class LoginServlet extends HttpServlet {
             request.setAttribute("errorMessage", "Error: " + e.getMessage());
             request.getRequestDispatcher("/vista/login.jsp").forward(request, response);
         }
-    }
-
-    @Override
+    }    @Override
     public String getServletInfo() {
         return "Short description";
-    }// </editor-fold>
+    }
 
 }
