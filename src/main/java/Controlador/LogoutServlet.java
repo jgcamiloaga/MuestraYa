@@ -27,32 +27,51 @@ public class LogoutServlet extends HttpServlet {
             out.println("</body>");
             out.println("</html>");
         }
-    }
-
-    @Override
+    }    @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        performLogout(request, response);
+    }
+    
+    private void performLogout(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         // Obtener la sesión actual sin crear una nueva
         HttpSession session = request.getSession(false);
 
         if (session != null) {
-            // Invalidar la sesión
+            // Limpiar todos los atributos de sesión antes de invalidar
+            session.removeAttribute("isLoggedIn");
+            session.removeAttribute("usuario");
+            session.removeAttribute("carrito");
+            
+            // Invalidar la sesión completamente
             session.invalidate();
         }
 
-        // Agregar un parámetro para evitar problemas de caché
-        response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+        // Headers robustos para prevenir caché y navegación hacia atrás
+        response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate, private");
         response.setHeader("Pragma", "no-cache");
+        response.setHeader("Expires", "0");
         response.setDateHeader("Expires", 0);
-
-        // Redireccionar a la página de login usando el servlet de login
-        response.sendRedirect(request.getContextPath() + "/login");
-    }
-
-    @Override
+        
+        // Headers adicionales de seguridad
+        response.setHeader("X-Frame-Options", "DENY");
+        response.setHeader("X-Content-Type-Options", "nosniff");
+        
+        // Verificar si es una petición AJAX
+        String requestedWith = request.getHeader("X-Requested-With");
+        if ("XMLHttpRequest".equals(requestedWith)) {
+            response.setContentType("application/json");
+            response.getWriter().write("{\"success\":true,\"message\":\"Logout successful\",\"redirect\":\"" + 
+                                     request.getContextPath() + "/vista/login.jsp\"}");
+        } else {
+            // Redireccionar a la página de login con parámetro de logout exitoso
+            response.sendRedirect(request.getContextPath() + "/vista/login.jsp?logout=success");
+        }
+    }    @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+        performLogout(request, response);
     }
 
     @Override
