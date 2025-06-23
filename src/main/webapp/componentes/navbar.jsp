@@ -253,3 +253,6 @@
     line-height: 1 !important;
 }
 </style>
+
+<!-- Script de seguridad -->
+<script src="${pageContext.request.contextPath}/recursos/js/security.js"></script>
