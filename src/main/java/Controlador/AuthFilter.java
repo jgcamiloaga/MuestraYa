@@ -24,8 +24,33 @@ public class AuthFilter implements Filter {
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         HttpServletResponse httpResponse = (HttpServletResponse) response;
         
+        // Obtener la sesión sin crear una nueva
         HttpSession session = httpRequest.getSession(false);
-        boolean isLoggedIn = session != null && session.getAttribute("isLoggedIn") != null;
+        
+        // Verificar múltiples condiciones para asegurar autenticación válida
+        boolean isLoggedIn = session != null && 
+                           session.getAttribute("isLoggedIn") != null && 
+                           session.getAttribute("usuario") != null &&
+                           !session.isNew();
+        
+        // Verificar si la sesión ha expirado comparando timestamps
+        if (session != null && isLoggedIn) {
+            // Opcional: verificar tiempo de última actividad
+            Long lastAccessTime = (Long) session.getAttribute("lastAccessTime");
+            if (lastAccessTime != null) {
+                long now = System.currentTimeMillis();
+                long sessionTimeout = 30 * 60 * 1000; // 30 minutos en milisegundos
+                if (now - lastAccessTime > sessionTimeout) {
+                    session.invalidate();
+                    isLoggedIn = false;
+                }
+            }
+            
+            if (isLoggedIn) {
+                // Actualizar timestamp de última actividad
+                session.setAttribute("lastAccessTime", System.currentTimeMillis());
+            }
+        }
         
         if (isLoggedIn) {
             // Obtener la URI solicitada
@@ -55,8 +80,23 @@ public class AuthFilter implements Filter {
                 chain.doFilter(request, response);
             }
         } else {
-            // El usuario no está autenticado, redirigir a la página de login
-            httpResponse.sendRedirect(httpRequest.getContextPath() + "/vista/login.jsp");
+            // El usuario no está autenticado
+            // Configurar headers para prevenir caché
+            httpResponse.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+            httpResponse.setHeader("Pragma", "no-cache");
+            httpResponse.setDateHeader("Expires", 0);
+            
+            // Verificar si es una petición AJAX
+            String requestedWith = httpRequest.getHeader("X-Requested-With");
+            if ("XMLHttpRequest".equals(requestedWith)) {
+                httpResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                httpResponse.setContentType("application/json");
+                httpResponse.getWriter().write("{\"error\":\"Authentication required\",\"redirect\":\"" + 
+                                             httpRequest.getContextPath() + "/vista/login.jsp\"}");
+            } else {
+                // Redirigir a la página de login
+                httpResponse.sendRedirect(httpRequest.getContextPath() + "/vista/login.jsp");
+            }
         }
     }
     
