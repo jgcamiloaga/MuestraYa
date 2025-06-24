@@ -1,3 +1,4 @@
+controlador\NoCacheFilter.class
 controlador\ImageServlet.class
 servicios\PasswordUtil.class
 modelo\dao\FavoritoDAO.class
